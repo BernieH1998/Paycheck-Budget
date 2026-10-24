@@ -1,0 +1,192 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Paycheck Budget</title><meta name="theme-color" content="#0d1420"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Paycheck Budget"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box}body{font:15px system-ui;background:#0d1420;color:#edf3ff;margin:0}main{max-width:1150px;margin:auto;padding:22px}h1{margin:0}p,small{color:#a9b9d1}.panel{background:#192437;border:1px solid #39475d;border-radius:14px;padding:18px;margin:14px 0}input,select{background:#101a2b;border:1px solid #60718a;border-radius:8px;padding:11px;color:white;width:100%;font:inherit}label{display:block;color:#c6d2e6;font-size:13px}label input,label select{margin-top:6px}.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px}button{border:0;border-radius:8px;background:#417bff;color:white;padding:10px 13px;cursor:pointer;font:inherit}button.alt{background:#344b6d}button.danger{background:#853a50}.banner{background:#174b3c;border:1px solid #4cd2a0;border-radius:10px;padding:12px;margin:12px 0}#board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.tile{border:1px solid #5b7194;background:#243650;padding:13px;margin:10px 0;border-radius:12px;cursor:grab}.tile.drag{opacity:.4}.tile button{padding:5px 9px}.tileheader{display:flex;justify-content:space-between;gap:8px;align-items:center}.tileactions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.drop{min-height:80px}.target{outline:2px dashed #8bb4ff}.summary{font-size:19px;font-weight:700}.muted{color:#a9b9d1}.paid{opacity:1!important;background:#d9f7df!important;border:2px solid #67c78b!important;color:#174c2c!important}.paid strong,.paid b{color:#174c2c!important}.paid small{color:#356c49!important}.paid button.alt{background:#387953;color:white}.paid button:not(.alt){background:#247d4a;color:white}#notice{display:none}.calendar-nav{display:flex;flex-direction:row;align-items:center;gap:8px;flex-wrap:nowrap}.calendar-nav button{white-space:nowrap;min-width:100px}.board-heading{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}#manage>div{padding:9px;border-bottom:1px solid #364760;display:flex;justify-content:space-between;align-items:center;gap:10px}@media(max-width:680px){#board{grid-template-columns:1fr}} 
+
+.date-calendar{position:absolute;z-index:1000;width:290px;background:#18283e;border:1px solid #7188aa;border-radius:12px;padding:12px;box-shadow:0 12px 35px #0009;color:#edf3ff}
+.date-calendar .cal-head{display:flex;flex-direction:row;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.date-calendar .cal-head button{padding:5px 11px;min-width:36px}
+.date-calendar .cal-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.date-calendar .cal-days button{padding:7px 0;background:#304764;min-width:0}
+.date-calendar .cal-days button.today{outline:2px solid #88bbff}
+.date-calendar .cal-days button.selected{background:#367c5a}
+.date-calendar .cal-days span{text-align:center;color:#9fb2d0;font-size:12px;padding:5px 0}
+.date-calendar .cal-foot{display:flex;justify-content:space-between;margin-top:9px}
+.date-calendar .cal-foot button{background:#344b6d}
+.date-field{position:relative}.date-field input{cursor:pointer}
+@media(max-width:680px){main{padding:12px}.panel{padding:14px}button{min-height:42px}.date-calendar{max-width:calc(100vw - 48px)}.tileactions button{flex:1;min-width:50px}.board-heading{align-items:flex-start}.calendar-nav{width:100%;justify-content:space-between}}
+</style><main><h1>💸 Paycheck Budget</h1><div class="banner">Your budget stays on this device. Export a backup regularly, especially before switching phones or browsers.</div>
+<section class="panel"><h2>Paycheck setup</h2><div class="fields"><label>Next payday<input id="payday" type="date"></label><label>Take-home per paycheck ($)<input id="income" type="number" step=".01" placeholder="Optional"></label><label>Pay frequency<select id="freq"><option value="14">Every 2 weeks</option><option value="7">Weekly</option><option value="month">Monthly</option></select></label></div></section>
+<section class="panel"><h2>Add a bill</h2><div class="fields"><label>Bill name<input id="billname" placeholder="e.g. Rent"></label><label>Amount ($)<input id="amount" type="number" step=".01" placeholder="Optional"></label><label>Due day (1–31)<input id="day" type="number" min="1" max="31" placeholder="e.g. 15"></label><label>Repeats<select id="repeat"><option value="monthly">Monthly</option><option value="once">One time</option><option value="6months">Every 6 months</option><option value="yearly">Yearly</option></select></label><label>First due date<input id="first" type="date"></label></div><p><button type="button" id="add">+ Add bill</button> <button type="button" class="alt" id="cancel" hidden>Cancel edit</button></p><div class="banner" id="notice" role="status"></div></section>
+<div class="board-heading"><h2>Next 2 paychecks</h2><div class="calendar-nav"><button class="alt" id="earlier">← Earlier</button><button class="alt" id="later">Later →</button></div></div><p>Drag tiles to reorder them, or click ↑ / ↓. Use Move to send a tile to the other paycheck.</p><div id="board"></div>
+<section class="panel"><h2>Manage bills</h2><div id="manage"></div><div class="fields"><label>Import file (JSON backup or CSV bill list)<input id="importfile" type="file" accept=".json,.csv,application/json,text/csv"></label><label>Import behavior<select id="importmode"><option value="merge">Merge with existing bills (skip duplicates)</option><option value="replace">Replace entire budget</option></select></label></div>
+<p><button id="import" type="button">Import bills</button> <button id="export" class="alt">Export backup</button> <button id="reset" class="danger">Clear all bills</button></p>
+<p class="muted">CSV headers: name, amount, day, repeat, first (optional). JSON backups restore paycheck assignments and paid status when replacing. Export a backup before replacing.</p></section></main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),storage='paycheck-budget-pwa-v1';
+let s={payday:'',income:'',freq:'14',bills:[],assign:{},paid:{},order:{}},offset=0,editing=null,moving=null;
+try{let old=JSON.parse(localStorage.getItem(storage));if(old&&Array.isArray(old.bills))s={...s,...old}}catch(e){}
+const save=()=>{try{localStorage.setItem(storage,JSON.stringify(s))}catch(e){notice('Browser storage unavailable; export a backup before closing.')}};
+const iso=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+const dt=t=>{let [y,m,d]=t.split('-').map(Number);return new Date(y,m-1,d,12)};
+const plus=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n,12);
+const fmt=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const money=n=>n===null||n===''?'TBD':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD'});
+function notice(msg){$('notice').style.display='block';$('notice').textContent=msg}
+function dates(){if(!s.payday)return [];let base=dt(s.payday),arr=[];for(let i=-50;i<65;i++){if(s.freq==='month'){let d=new Date(base.getFullYear(),base.getMonth()+i,1,12);d.setDate(Math.min(base.getDate(),new Date(d.getFullYear(),d.getMonth()+1,0).getDate()));arr.push(d)}else arr.push(plus(base,i*Number(s.freq)))}return arr}
+function occurrences(from,to){let a=[];for(const b of s.bills){let start=new Date(from.getFullYear(),from.getMonth()-1,1,12);if(b.repeat==='monthly'){for(let i=0;i<20;i++){let m=new Date(start.getFullYear(),start.getMonth()+i,1,12),d=new Date(m.getFullYear(),m.getMonth(),Math.min(b.day,new Date(m.getFullYear(),m.getMonth()+1,0).getDate()),12);if(d>=from&&d<=to&&(!b.first||d>=dt(b.first)))a.push({b,d,k:b.id+'@'+iso(d)})}}else if(b.first){for(let i=0;i<30;i++){let base=dt(b.first),m=new Date(base.getFullYear(),base.getMonth()+(b.repeat==='yearly'?12*i:b.repeat==='6months'?6*i:0),1,12),d=new Date(m.getFullYear(),m.getMonth(),Math.min(base.getDate(),new Date(m.getFullYear(),m.getMonth()+1,0).getDate()),12);if(d>=from&&d<=to)a.push({b,d,k:b.id+'@'+iso(d)});if(b.repeat==='once')break}}}return a}
+function clearForm(){editing=null;for(let id of ['billname','amount','day','first'])$(id).value='';$('repeat').value='monthly';$('add').textContent='+ Add bill';$('cancel').hidden=true}
+function render(){
+$('payday').value=s.payday;$('income').value=s.income;$('freq').value=s.freq;
+let manage=$('manage');manage.replaceChildren();for(let b of s.bills){let r=document.createElement('div'),name=document.createElement('span');name.textContent=b.name+' · '+money(b.amount)+' · '+b.repeat;let e=document.createElement('button');e.className='alt';e.textContent='Edit';e.onclick=()=>{editing=b.id;$('billname').value=b.name;$('amount').value=b.amount??'';$('day').value=b.day;$('repeat').value=b.repeat;$('first').value=b.first||'';$('add').textContent='Save changes';$('cancel').hidden=false;window.scrollTo({top:0,behavior:'smooth'})};let del=document.createElement('button');del.className='danger';del.textContent='Delete';del.onclick=()=>{s.bills=s.bills.filter(x=>x.id!==b.id);save();render()};let actions=document.createElement('span');actions.append(e,' ',del);r.append(name,actions);manage.append(r)}
+let board=$('board');board.replaceChildren();let pays=dates();if(!pays.length){let p=document.createElement('div');p.className='panel';p.textContent='Add bills now, then enter your payday to display the two paycheck columns.';board.append(p);return}
+let today=new Date();today.setHours(12,0,0,0);let ix=pays.findIndex((p,i)=>p<=today&&pays[i+1]>today);if(ix<0)ix=pays.findIndex(p=>p>=today);ix=Math.max(0,Math.min(pays.length-3,ix+offset));
+let chosen=pays.slice(ix,ix+3),all=occurrences(plus(chosen[0],-35),plus(chosen[2],35));
+for(let j=0;j<2;j++){let p=chosen[j],end=chosen[j+1],pid=iso(p),items=all.filter(x=>s.assign[x.k]?s.assign[x.k]===pid:x.d>=p&&x.d<end);
+items.sort((a,b)=>{let oa=s.order[pid]||[];let ai=oa.indexOf(a.k),bi=oa.indexOf(b.k);return (ai<0?10000:ai)-(bi<0?10000:bi)||a.d-b.d});
+let card=document.createElement('section');card.className='panel';let h=document.createElement('h2');h.textContent='Paycheck '+fmt(p);let total=items.reduce((n,x)=>n+(Number(x.b.amount)||0),0),sum=document.createElement('div');sum.className='summary';sum.textContent='Bills: '+money(total)+' · Remaining: '+(s.income===''?'—':money(Number(s.income)-total));card.append(h,sum);
+let drop=document.createElement('div');drop.className='drop';drop.ondragover=e=>{e.preventDefault();drop.classList.add('target')};drop.ondragleave=()=>drop.classList.remove('target');drop.ondrop=e=>{e.preventDefault();drop.classList.remove('target');let k=e.dataTransfer.getData('text/plain');if(k)moveTo(k,pid,null)};
+if(moving){let banner=document.createElement('button');banner.textContent='Move selected tile here';banner.onclick=()=>moveTo(moving,pid,null);drop.append(banner)}
+items.forEach((x,index)=>{let t=document.createElement('div');t.className='tile'+(s.paid[x.k]?' paid':'');t.draggable=true;t.ondragstart=e=>{e.dataTransfer.setData('text/plain',x.k);t.classList.add('drag')};t.ondragend=()=>t.classList.remove('drag');t.ondragover=e=>e.preventDefault();t.ondrop=e=>{e.stopPropagation();e.preventDefault();let k=e.dataTransfer.getData('text/plain');if(k)moveTo(k,pid,index)};
+let header=document.createElement('div');header.className='tileheader';let name=document.createElement('strong');name.textContent=x.b.name;let amt=document.createElement('b');amt.textContent=money(x.b.amount);header.append(name,amt);let sub=document.createElement('small');sub.textContent='Due '+fmt(x.d);let actions=document.createElement('div');actions.className='tileactions';
+let paid=document.createElement('button');paid.className='alt';paid.textContent=s.paid[x.k]?'✓ Paid — Undo':'Mark paid';paid.onclick=()=>{s.paid[x.k]=!s.paid[x.k];save();render()};
+let mv=document.createElement('button');mv.textContent=moving===x.k?'Cancel move':'Move';mv.onclick=()=>{moving=moving===x.k?null:x.k;render()};
+let up=document.createElement('button');up.className='alt';up.textContent='↑';up.onclick=()=>reorder(pid,items,x.k,-1);let down=document.createElement('button');down.className='alt';down.textContent='↓';down.onclick=()=>reorder(pid,items,x.k,1);
+actions.append(paid,mv,up,down);t.append(header,sub,actions);drop.append(t)});card.append(drop);board.append(card)}
+}
+function reorder(pid,items,k,direction){let keys=items.map(x=>x.k),i=keys.indexOf(k),j=i+direction;if(j<0||j>=keys.length)return;[keys[i],keys[j]]=[keys[j],keys[i]];s.order[pid]=keys;save();render()}
+function moveTo(k,pid,index){s.assign[k]=pid;let arr=s.order[pid]||[];arr=arr.filter(x=>x!==k);if(index===null)arr.push(k);else arr.splice(index,0,k);s.order[pid]=arr;moving=null;save();render()}
+$('add').onclick=()=>{try{let name=$('billname').value.trim();if(!name){notice('Please enter a bill name first.');$('billname').focus();return}let day=Number($('day').value)||new Date().getDate(),first=$('first').value,repeat=$('repeat').value;if(day<1||day>31){notice('Due day must be between 1 and 31.');return}if(repeat!=='monthly'&&!first)first=iso(new Date());let b={id:editing||'b'+Date.now()+'_'+Math.floor(Math.random()*1000),name,amount:$('amount').value===''?null:Number($('amount').value),day,repeat,first};if(editing)s.bills=s.bills.map(x=>x.id===editing?b:x);else s.bills.push(b);save();clearForm();render();notice('✓ Bill saved: '+name+(s.payday?' — see your paycheck tiles below.':' — enter a payday to display its tile.'))}catch(e){notice('Could not add bill: '+e.message)}};
+$('cancel').onclick=clearForm;
+for(let id of ['payday','income','freq'])$(id).onchange=()=>{s.payday=$('payday').value;s.income=$('income').value;s.freq=$('freq').value;offset=0;save();render()};
+$('earlier').onclick=()=>{offset-=2;render()};$('later').onclick=()=>{offset+=2;render()};
+
+function parseCSV(input){
+ const rows=[];let row=[],field='',quote=false;
+ input=input.replace(/^\uFEFF/,'');
+ for(let i=0;i<input.length;i++){
+  const c=input[i];
+  if(quote){if(c==='"'&&input[i+1]==='"'){field+='"';i++}else if(c==='"')quote=false;else field+=c}
+  else if(c==='"')quote=true;
+  else if(c===','){row.push(field);field=''}
+  else if(c==='\n'||c==='\r'){if(c==='\r'&&input[i+1]==='\n')i++;row.push(field);if(row.some(x=>x.trim()))rows.push(row);row=[];field=''}
+  else field+=c
+ }
+ if(quote)throw Error('Unclosed quoted field in CSV');
+ row.push(field);if(row.some(x=>x.trim()))rows.push(row);
+ if(rows.length<2)throw Error('CSV needs a header and at least one bill');
+ const headers=rows.shift().map(x=>x.trim().toLowerCase().replace(/[\s_-]/g,''));
+ const col=(r,...names)=>{for(const n of names){const i=headers.indexOf(n);if(i>=0)return (r[i]||'').trim()}return ''};
+ if(!headers.includes('name')&&!headers.includes('billname'))throw Error('CSV needs a name column');
+ return rows.map((r,i)=>{
+  const name=col(r,'name','billname');if(!name)throw Error('Missing bill name on CSV row '+(i+2));
+  const rawAmount=col(r,'amount','price'),rawDay=col(r,'day','dueday','duedate'),first=col(r,'first','firstduedate','startdate');
+  const amount=rawAmount===''?null:Number(rawAmount.replace(/[$,]/g,''));
+  if(amount!==null&&!Number.isFinite(amount))throw Error('Invalid amount on row '+(i+2));
+  let day=Number(rawDay);if(!day&&/^\d{4}-\d{2}-\d{2}$/.test(first))day=Number(first.slice(8));
+  if(!day)day=1;
+  if(!Number.isInteger(day)||day<1||day>31)throw Error('Invalid due day on row '+(i+2));
+  const repeat=normalizeRepeat(col(r,'repeat','frequency')||'monthly');
+  return {id:newId(),name,amount,day,repeat,first:validDate(first)?first:''};
+ })
+}
+function newId(){return 'import'+Date.now()+'_'+Math.random().toString(36).slice(2,11)}
+function validDate(v){return /^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(new Date(v+'T12:00:00').getTime())}
+function normalizeRepeat(v){
+ const x=String(v||'monthly').toLowerCase().replace(/[\s_-]/g,'');
+ if(['monthly','month'].includes(x))return 'monthly';
+ if(['once','onetime','oneoff'].includes(x))return 'once';
+ if(['6months','sixmonths','semiannual','biannual'].includes(x))return '6months';
+ if(['yearly','annual','annually','year'].includes(x))return 'yearly';
+ throw Error('Unsupported repeat value: '+v)
+}
+function normalizeBill(b){
+ if(!b||typeof b!=='object'||!String(b.name||'').trim())throw Error('A bill is missing its name');
+ const amount=b.amount===null||b.amount===undefined||b.amount===''?null:Number(b.amount);
+ const day=Number(b.day)||1;
+ if(amount!==null&&!Number.isFinite(amount))throw Error('Invalid amount for '+b.name);
+ if(!Number.isInteger(day)||day<1||day>31)throw Error('Invalid due day for '+b.name);
+ return {id:String(b.id||newId()),name:String(b.name).trim(),amount,day,repeat:normalizeRepeat(b.repeat),first:validDate(b.first||'')?b.first:''}
+}
+function billIdentity(b){return [b.name.trim().toLowerCase(),b.day,b.repeat,b.first||''].join('|')}
+$('import').onclick=async()=>{
+ const file=$('importfile').files[0];if(!file){notice('Choose a JSON or CSV file first.');return}
+ try{
+  const content=await file.text();let incoming,full=null;
+  if(file.name.toLowerCase().endsWith('.csv'))incoming=parseCSV(content);
+  else{
+   const parsed=JSON.parse(content);
+   if(Array.isArray(parsed))incoming=parsed;
+   else if(parsed&&Array.isArray(parsed.bills)){incoming=parsed.bills;full=parsed}
+   else throw Error('JSON must be a budget backup with a bills array, or an array of bills')
+  }
+  incoming=incoming.map(normalizeBill);
+  const mode=$('importmode').value;
+  if(mode==='replace'){
+   if(!confirm('Replace your current budget with '+incoming.length+' imported bills? Export a backup first if needed.'))return;
+   if(full){
+    s={payday:validDate(full.payday||'')?full.payday:'',income:full.income??'',freq:['7','14','month'].includes(String(full.freq))?String(full.freq):'14',bills:incoming,assign:full.assign&&typeof full.assign==='object'?full.assign:{},paid:full.paid&&typeof full.paid==='object'?full.paid:{},order:full.order&&typeof full.order==='object'?full.order:{}};
+   }else{s={...s,bills:incoming,assign:{},paid:{},order:{}}}
+   notice('✓ Replaced budget with '+incoming.length+' bills.');
+  }else{
+   const identities=new Set(s.bills.map(billIdentity)),ids=new Set(s.bills.map(b=>b.id));let added=0;
+   for(const b of incoming){
+    const identity=billIdentity(b);if(identities.has(identity))continue;
+    if(ids.has(b.id))b.id=newId();
+    s.bills.push(b);identities.add(identity);ids.add(b.id);added++;
+   }
+   notice('✓ Imported '+added+' new bills; skipped '+(incoming.length-added)+' duplicates. Existing paycheck assignments were preserved.');
+  }
+  save();render();$('importfile').value='';
+ }catch(e){notice('Import failed: '+e.message)}
+};
+
+$('reset').onclick=()=>{if(confirm('Delete all your saved bills?')){s={payday:'',income:'',freq:'14',bills:[],assign:{},paid:{},order:{}};save();render()}};
+$('export').onclick=()=>{let a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(s,null,2)],{type:'application/json'}));a.href=url;a.download='paycheck-budget-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000)};
+
+function installHorizontalCalendars(){
+ for(const id of ['payday','first']){
+  const input=$(id);input.type='text';input.readOnly=true;input.placeholder='Choose date (YYYY-MM-DD)';
+  const wrapper=document.createElement('div');wrapper.className='date-field';input.parentNode.insertBefore(wrapper,input);wrapper.appendChild(input);
+  const popup=document.createElement('div');popup.className='date-calendar';popup.hidden=true;wrapper.appendChild(popup);
+  let view=new Date();view.setDate(1);
+  function draw(){
+   popup.replaceChildren();
+   const head=document.createElement('div');head.className='cal-head';
+   const prev=document.createElement('button');prev.type='button';prev.textContent='←';prev.title='Previous month';
+   const next=document.createElement('button');next.type='button';next.textContent='→';next.title='Next month';
+   const title=document.createElement('strong');title.textContent=view.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+   prev.onclick=()=>{view.setMonth(view.getMonth()-1);draw()};next.onclick=()=>{view.setMonth(view.getMonth()+1);draw()};
+   head.append(prev,title,next);popup.append(head);
+   const grid=document.createElement('div');grid.className='cal-days';
+   for(const d of ['S','M','T','W','T','F','S']){const x=document.createElement('span');x.textContent=d;grid.append(x)}
+   const offset=new Date(view.getFullYear(),view.getMonth(),1).getDay();
+   for(let i=0;i<offset;i++)grid.append(document.createElement('span'));
+   const count=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
+   for(let d=1;d<=count;d++){
+    const b=document.createElement('button');b.type='button';b.textContent=d;
+    const value=iso(new Date(view.getFullYear(),view.getMonth(),d,12));
+    if(input.value===value)b.classList.add('selected');
+    if(iso(new Date())===value)b.classList.add('today');
+    b.onclick=()=>{input.value=value;popup.hidden=true;input.dispatchEvent(new Event('change',{bubbles:true}))};
+    grid.append(b)
+   }
+   popup.append(grid);
+   const foot=document.createElement('div');foot.className='cal-foot';
+   const today=document.createElement('button');today.type='button';today.textContent='Today';today.onclick=()=>{input.value=iso(new Date());popup.hidden=true;input.dispatchEvent(new Event('change',{bubbles:true}))};
+   const clear=document.createElement('button');clear.type='button';clear.textContent='Clear';clear.onclick=()=>{input.value='';popup.hidden=true;input.dispatchEvent(new Event('change',{bubbles:true}))};
+   foot.append(today,clear);popup.append(foot)
+  }
+  input.addEventListener('click',()=>{
+   document.querySelectorAll('.date-calendar').forEach(x=>{if(x!==popup)x.hidden=true});
+   popup.hidden=!popup.hidden;
+   if(!popup.hidden){view=input.value&&/^\d{4}-\d{2}-\d{2}$/.test(input.value)?dt(input.value):new Date();view=new Date(view.getFullYear(),view.getMonth(),1,12);draw()}
+  });
+ }
+ document.addEventListener('click',e=>{if(!e.target.closest('.date-field'))document.querySelectorAll('.date-calendar').forEach(x=>x.hidden=true)})
+}
+installHorizontalCalendars();
+
+render();
+})();
+</script><script>if('serviceWorker' in navigator && location.protocol==='https:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script></html>
