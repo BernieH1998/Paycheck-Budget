@@ -14,17 +14,51 @@
 .date-calendar .cal-foot button{background:#344b6d}
 .date-field{position:relative}.date-field input{cursor:pointer}
 @media(max-width:680px){main{padding:12px}.panel{padding:14px}button{min-height:42px}.date-calendar{max-width:calc(100vw - 48px)}.tileactions button{flex:1;min-width:50px}.board-heading{align-items:flex-start}.calendar-nav{width:100%;justify-content:space-between}}
-</style><main><h1>💸 Paycheck Budget</h1><div class="banner">Your budget stays on this device. Export a backup regularly, especially before switching phones or browsers.</div>
-<section class="panel"><h2>Paycheck setup</h2><div class="fields"><label>Next payday<input id="payday" type="date"></label><label>Take-home per paycheck ($)<input id="income" type="number" step=".01" placeholder="Optional"></label><label>Pay frequency<select id="freq"><option value="14">Every 2 weeks</option><option value="7">Weekly</option><option value="month">Monthly</option></select></label></div></section>
-<section class="panel"><h2>Add a bill</h2><div class="fields"><label>Bill name<input id="billname" placeholder="e.g. Rent"></label><label>Amount ($)<input id="amount" type="number" step=".01" placeholder="Optional"></label><label>Due day (1–31)<input id="day" type="number" min="1" max="31" placeholder="e.g. 15"></label><label>Repeats<select id="repeat"><option value="monthly">Monthly</option><option value="once">One time</option><option value="6months">Every 6 months</option><option value="yearly">Yearly</option></select></label><label>First due date<input id="first" type="date"></label></div><p><button type="button" id="add">+ Add bill</button> <button type="button" class="alt" id="cancel" hidden>Cancel edit</button></p><div class="banner" id="notice" role="status"></div></section>
-<div class="board-heading"><h2>Next 2 paychecks</h2><div class="calendar-nav"><button class="alt" id="earlier">← Earlier</button><button class="alt" id="later">Later →</button></div></div><p>Drag tiles to reorder them, or click ↑ / ↓. Use Move to send a tile to the other paycheck.</p><div id="board"></div>
-<section class="panel"><h2>Manage bills</h2><div id="manage"></div><div class="fields"><label>Import file (JSON backup or CSV bill list)<input id="importfile" type="file" accept=".json,.csv,application/json,text/csv"></label><label>Import behavior<select id="importmode"><option value="merge">Merge with existing bills (skip duplicates)</option><option value="replace">Replace entire budget</option></select></label></div>
+
+/* Mobile-first improvements */
+html{scroll-behavior:smooth}body{padding-bottom:env(safe-area-inset-bottom)}button,input,select{touch-action:manipulation}
+.collapsible{padding:0;overflow:visible}
+.collapsible>summary{cursor:pointer;list-style:none;padding:16px 18px;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.collapsible>summary::-webkit-details-marker{display:none}
+.collapsible>summary:after{content:"⌄";font-size:24px;color:#9cb6da}
+.collapsible[open]>summary:after{content:"⌃"}
+.collapsible .section-content{padding:0 18px 18px}
+.collapsible .hint{font-size:12px;color:#9fb2d0;font-weight:400;margin-left:auto}
+.collapsible[open] .hint{display:none}
+.mobile-tabs{display:none}
+.tile{touch-action:pan-y}
+.tile button{min-height:38px}
+#manage>div span:last-child{display:flex;gap:5px}
+@media(max-width:680px){
+ main{padding:12px 12px calc(24px + env(safe-area-inset-bottom))}
+ h1{font-size:23px}
+ .banner{font-size:13px}
+ .fields{grid-template-columns:1fr}
+ input,select{font-size:16px}
+ .mobile-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:sticky;top:0;z-index:40;background:#0d1420;padding:8px 0}
+ .mobile-tabs button{min-width:0;font-weight:700}
+ .mobile-tabs button.active{background:#417bff}
+ #board{display:block}
+ #board>.panel{display:none}
+ #board>.panel.mobile-current{display:block}
+ .tileactions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+ .tileactions button{min-width:0;font-size:13px;padding:8px 3px}
+ .tileactions button:first-child{grid-column:span 2}
+ .tileactions button:nth-child(2){grid-column:span 2}
+ .board-heading h2{font-size:19px}
+ .date-calendar{width:min(310px,calc(100vw - 48px))}
+}
+</style><main><h1>💸 Paycheck Budget <small style="font-size:12px">Mobile 1.1</small></h1><div class="banner">Your budget stays on this device. Export a backup regularly, especially before switching phones or browsers.</div>
+<details class="panel collapsible" id="setupSection"><summary>⚙️ Paycheck setup <span class="hint">Tap to expand</span></summary><div class="section-content"><div class="fields"><label>Next payday<input id="payday" type="date"></label><label>Take-home per paycheck ($)<input id="income" type="number" step=".01" placeholder="Optional"></label><label>Pay frequency<select id="freq"><option value="14">Every 2 weeks</option><option value="7">Weekly</option><option value="month">Monthly</option></select></label></div></div></details>
+<details class="panel collapsible" id="addSection"><summary>＋ Add a bill <span class="hint">Tap to expand</span></summary><div class="section-content"><div class="fields"><label>Bill name<input id="billname" placeholder="e.g. Rent"></label><label>Amount ($)<input id="amount" type="number" step=".01" placeholder="Optional"></label><label>Due day (1–31)<input id="day" type="number" min="1" max="31" placeholder="e.g. 15"></label><label>Repeats<select id="repeat"><option value="monthly">Monthly</option><option value="once">One time</option><option value="6months">Every 6 months</option><option value="yearly">Yearly</option></select></label><label>First due date<input id="first" type="date"></label></div><p><button type="button" id="add">+ Add bill</button> <button type="button" class="alt" id="cancel" hidden>Cancel edit</button></p><div class="banner" id="notice" role="status"></div></details>
+<div class="board-heading"><h2>Next 2 paychecks</h2><div class="calendar-nav"><button class="alt" id="earlier">← Earlier</button><button class="alt" id="later">Later →</button></div></div><p>Drag tiles to reorder them, or click ↑ / ↓. Use Move to send a tile to the other paycheck.</p><div class="mobile-tabs" id="mobileTabs" aria-label="Choose paycheck"><button type="button" id="tab0" class="active">Paycheck 1</button><button type="button" id="tab1" class="alt">Paycheck 2</button></div><div id="board"></div>
+<details class="panel collapsible" id="manageSection"><summary>🗂 Manage bills & backups <span class="hint">Tap to expand</span></summary><div class="section-content"><div id="manage"></div><div class="fields"><label>Import file (JSON backup or CSV bill list)<input id="importfile" type="file" accept=".json,.csv,application/json,text/csv"></label><label>Import behavior<select id="importmode"><option value="merge">Merge with existing bills (skip duplicates)</option><option value="replace">Replace entire budget</option></select></label></div>
 <p><button id="import" type="button">Import bills</button> <button id="export" class="alt">Export backup</button> <button id="reset" class="danger">Clear all bills</button></p>
-<p class="muted">CSV headers: name, amount, day, repeat, first (optional). JSON backups restore paycheck assignments and paid status when replacing. Export a backup before replacing.</p></section></main>
+<p class="muted">CSV headers: name, amount, day, repeat, first (optional). JSON backups restore paycheck assignments and paid status when replacing. Export a backup before replacing.</p></div></details></main>
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id),storage='paycheck-budget-pwa-v1';
-let s={payday:'',income:'',freq:'14',bills:[],assign:{},paid:{},order:{}},offset=0,editing=null,moving=null;
+let s={payday:'',income:'',freq:'14',bills:[],assign:{},paid:{},order:{}},offset=0,editing=null,moving=null,mobileTab=0;
 try{let old=JSON.parse(localStorage.getItem(storage));if(old&&Array.isArray(old.bills))s={...s,...old}}catch(e){}
 const save=()=>{try{localStorage.setItem(storage,JSON.stringify(s))}catch(e){notice('Browser storage unavailable; export a backup before closing.')}};
 const iso=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
@@ -38,7 +72,7 @@ function occurrences(from,to){let a=[];for(const b of s.bills){let start=new Dat
 function clearForm(){editing=null;for(let id of ['billname','amount','day','first'])$(id).value='';$('repeat').value='monthly';$('add').textContent='+ Add bill';$('cancel').hidden=true}
 function render(){
 $('payday').value=s.payday;$('income').value=s.income;$('freq').value=s.freq;
-let manage=$('manage');manage.replaceChildren();for(let b of s.bills){let r=document.createElement('div'),name=document.createElement('span');name.textContent=b.name+' · '+money(b.amount)+' · '+b.repeat;let e=document.createElement('button');e.className='alt';e.textContent='Edit';e.onclick=()=>{editing=b.id;$('billname').value=b.name;$('amount').value=b.amount??'';$('day').value=b.day;$('repeat').value=b.repeat;$('first').value=b.first||'';$('add').textContent='Save changes';$('cancel').hidden=false;window.scrollTo({top:0,behavior:'smooth'})};let del=document.createElement('button');del.className='danger';del.textContent='Delete';del.onclick=()=>{s.bills=s.bills.filter(x=>x.id!==b.id);save();render()};let actions=document.createElement('span');actions.append(e,' ',del);r.append(name,actions);manage.append(r)}
+let manage=$('manage');manage.replaceChildren();for(let b of s.bills){let r=document.createElement('div'),name=document.createElement('span');name.textContent=b.name+' · '+money(b.amount)+' · '+b.repeat;let e=document.createElement('button');e.className='alt';e.textContent='Edit';e.onclick=()=>{editing=b.id;$('billname').value=b.name;$('amount').value=b.amount??'';$('day').value=b.day;$('repeat').value=b.repeat;$('first').value=b.first||'';$('add').textContent='Save changes';$('cancel').hidden=false;$('addSection').open=true;$('addSection').scrollIntoView({behavior:'smooth',block:'start'})};let del=document.createElement('button');del.className='danger';del.textContent='Delete';del.onclick=()=>{s.bills=s.bills.filter(x=>x.id!==b.id);save();render()};let actions=document.createElement('span');actions.append(e,' ',del);r.append(name,actions);manage.append(r)}
 let board=$('board');board.replaceChildren();let pays=dates();if(!pays.length){let p=document.createElement('div');p.className='panel';p.textContent='Add bills now, then enter your payday to display the two paycheck columns.';board.append(p);return}
 let today=new Date();today.setHours(12,0,0,0);let ix=pays.findIndex((p,i)=>p<=today&&pays[i+1]>today);if(ix<0)ix=pays.findIndex(p=>p>=today);ix=Math.max(0,Math.min(pays.length-3,ix+offset));
 let chosen=pays.slice(ix,ix+3),all=occurrences(plus(chosen[0],-35),plus(chosen[2],35));
@@ -50,10 +84,12 @@ if(moving){let banner=document.createElement('button');banner.textContent='Move 
 items.forEach((x,index)=>{let t=document.createElement('div');t.className='tile'+(s.paid[x.k]?' paid':'');t.draggable=true;t.ondragstart=e=>{e.dataTransfer.setData('text/plain',x.k);t.classList.add('drag')};t.ondragend=()=>t.classList.remove('drag');t.ondragover=e=>e.preventDefault();t.ondrop=e=>{e.stopPropagation();e.preventDefault();let k=e.dataTransfer.getData('text/plain');if(k)moveTo(k,pid,index)};
 let header=document.createElement('div');header.className='tileheader';let name=document.createElement('strong');name.textContent=x.b.name;let amt=document.createElement('b');amt.textContent=money(x.b.amount);header.append(name,amt);let sub=document.createElement('small');sub.textContent='Due '+fmt(x.d);let actions=document.createElement('div');actions.className='tileactions';
 let paid=document.createElement('button');paid.className='alt';paid.textContent=s.paid[x.k]?'✓ Paid — Undo':'Mark paid';paid.onclick=()=>{s.paid[x.k]=!s.paid[x.k];save();render()};
-let mv=document.createElement('button');mv.textContent=moving===x.k?'Cancel move':'Move';mv.onclick=()=>{moving=moving===x.k?null:x.k;render()};
+let mv=document.createElement('button');mv.textContent=moving===x.k?'Cancel move':'Move';mv.onclick=()=>{moving=moving===x.k?null:x.k;if(moving&&window.matchMedia('(max-width:680px)').matches)mobileTab=1-j;render()};
 let up=document.createElement('button');up.className='alt';up.textContent='↑';up.onclick=()=>reorder(pid,items,x.k,-1);let down=document.createElement('button');down.className='alt';down.textContent='↓';down.onclick=()=>reorder(pid,items,x.k,1);
-actions.append(paid,mv,up,down);t.append(header,sub,actions);drop.append(t)});card.append(drop);board.append(card)}
+actions.append(paid,mv,up,down);t.append(header,sub,actions);drop.append(t)});card.append(drop);card.classList.toggle('mobile-current',j===mobileTab);board.append(card)}
 }
+function selectTab(i){mobileTab=i;for(let j=0;j<2;j++){$('tab'+j).classList.toggle('active',j===i);$('tab'+j).classList.toggle('alt',j!==i)}document.querySelectorAll('#board>.panel').forEach((c,j)=>c.classList.toggle('mobile-current',j===i))}
+$('tab0').onclick=()=>selectTab(0);$('tab1').onclick=()=>selectTab(1);
 function reorder(pid,items,k,direction){let keys=items.map(x=>x.k),i=keys.indexOf(k),j=i+direction;if(j<0||j>=keys.length)return;[keys[i],keys[j]]=[keys[j],keys[i]];s.order[pid]=keys;save();render()}
 function moveTo(k,pid,index){s.assign[k]=pid;let arr=s.order[pid]||[];arr=arr.filter(x=>x!==k);if(index===null)arr.push(k);else arr.splice(index,0,k);s.order[pid]=arr;moving=null;save();render()}
 $('add').onclick=()=>{try{let name=$('billname').value.trim();if(!name){notice('Please enter a bill name first.');$('billname').focus();return}let day=Number($('day').value)||new Date().getDate(),first=$('first').value,repeat=$('repeat').value;if(day<1||day>31){notice('Due day must be between 1 and 31.');return}if(repeat!=='monthly'&&!first)first=iso(new Date());let b={id:editing||'b'+Date.now()+'_'+Math.floor(Math.random()*1000),name,amount:$('amount').value===''?null:Number($('amount').value),day,repeat,first};if(editing)s.bills=s.bills.map(x=>x.id===editing?b:x);else s.bills.push(b);save();clearForm();render();notice('✓ Bill saved: '+name+(s.payday?' — see your paycheck tiles below.':' — enter a payday to display its tile.'))}catch(e){notice('Could not add bill: '+e.message)}};
@@ -187,6 +223,6 @@ function installHorizontalCalendars(){
 }
 installHorizontalCalendars();
 
-render();
+render();if(!s.payday)$('setupSection').open=true;
 })();
 </script><script>if('serviceWorker' in navigator && location.protocol==='https:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script></html>
