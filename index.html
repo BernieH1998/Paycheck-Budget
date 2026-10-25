@@ -80,7 +80,7 @@ html{scroll-behavior:smooth}body{padding-bottom:env(safe-area-inset-bottom)}butt
 .three-month small{display:block;margin-top:4px;font-size:11px;color:#b2c9e5}
 @media(max-width:680px){.three-paycheck{padding:15px;margin:14px 0 18px}.three-main{gap:11px;margin:17px 0 15px}.three-icon{width:45px;height:45px;font-size:25px}.three-main h2{font-size:22px}.three-date{padding:10px 8px}.three-date .three-day{font-size:18px}.three-months{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
-/* Compact mobile layout: bill controls are still present, just collapsed until tapped. */
+/* Compact mobile preview: bill controls are still present, just collapsed until tapped. */
 .tile-chevron{display:none}
 .compact-insights>summary{display:none}
 @media(max-width:680px){
@@ -266,25 +266,204 @@ main>h1{font-size:21px;margin:2px 0 10px}
  .report-stats{gap:5px!important}
  #insightsSection .three-payday-row{gap:5px!important}
 }
-</style><main><h1>Paycheck Budget <small style="font-size:11px">v1.20</small></h1>
-<details class="panel collapsible" id="setupSection"><summary>Paycheck setup </summary><div class="section-content"><div class="fields"><label>Next payday<input id="payday" type="date"></label><label>Take-home per paycheck ($)<input id="income" type="number" step=".01" placeholder="Optional"></label><label>Pay frequency<select id="freq"><option value="14">Every 2 weeks</option><option value="7">Weekly</option><option value="month">Monthly</option></select></label></div></div></details>
-<details class="panel collapsible" id="addSection"><summary>Add a bill ＋ </summary><div class="section-content"><div class="fields"><label>Bill name<input id="billname" placeholder="e.g. Rent"></label><label>Amount ($)<input id="amount" type="number" step=".01" placeholder="Optional"></label><label>Due day (1–31)<input id="day" type="number" min="1" max="31" placeholder="e.g. 15"></label><label>Amount behavior<select id="amountType"><option value="fixed">Fixed — carry amount forward</option><option value="variable">Variable — enter each occurrence</option></select></label><label>Repeats<select id="repeat"><option value="monthly">Monthly</option><option value="once">One time</option><option value="6months">Every 6 months</option><option value="yearly">Yearly</option></select></label><label>First due date<input id="first" type="date"></label></div><p><button type="button" id="add">+ Add bill</button> <button type="button" class="alt" id="cancel" hidden>Cancel edit</button></p><div class="banner" id="notice" role="status"></div></div></details>
-<details class="compact-insights panel" id="insightsSection" open><summary>Payday insights </summary><section class="three-paycheck" id="threePaycheckBox" aria-live="polite" hidden>
+
+/* v1.21 uniform panels and restored side-by-side paycheck cards */
+:root{--panel-bg:#151f30;--panel-border:#506077;--panel-radius:12px;--panel-gap:9px}
+main{max-width:1100px!important}
+#setupSection,#addSection,#insightsSection,#paychecksSection,#reportPanel,#manageSection{
+ display:block;display:flow-root;margin:var(--panel-gap) 0!important;padding:0!important;
+ border:1px solid var(--panel-border)!important;border-radius:var(--panel-radius)!important;
+ background:var(--panel-bg)!important;overflow:hidden!important;box-shadow:none!important;
+}
+#setupSection>summary,#addSection>summary,#insightsSection>summary,#paychecksSection>summary,#reportPanel>summary,#manageSection>summary{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ padding:13px 16px!important;min-height:48px!important;margin:0!important;
+ font-size:14px!important;font-weight:700!important;color:#dceaff!important;
+ background:var(--panel-bg)!important;list-style:none!important;cursor:pointer!important;
+}
+#setupSection>summary::after,#addSection>summary::after,#insightsSection>summary::after,#paychecksSection>summary::after,#reportPanel>summary::after,#manageSection>summary::after{
+ content:''!important;display:block!important;width:8px!important;height:8px!important;flex:none!important;
+ border-right:2px solid #86b4ff!important;border-bottom:2px solid #86b4ff!important;
+ transform:rotate(45deg)!important;transition:transform .15s!important;margin:0 3px 3px 12px!important;
+}
+#setupSection[open]>summary::after,#addSection[open]>summary::after,#insightsSection[open]>summary::after,#paychecksSection[open]>summary::after,#reportPanel[open]>summary::after,#manageSection[open]>summary::after{
+ transform:rotate(225deg)!important;margin-top:6px!important;margin-bottom:0!important;
+}
+#setupSection[open]>summary,#addSection[open]>summary,#insightsSection[open]>summary,#paychecksSection[open]>summary,#reportPanel[open]>summary,#manageSection[open]>summary{
+ border-bottom:1px solid #35445b!important;
+}
+#setupSection>.section-content,#addSection>.section-content,#manageSection>.section-content{padding:14px 16px!important}
+#insightsSection>.three-paycheck{background:transparent!important;border:0!important;border-radius:0!important;margin:0!important}
+#paychecksSection>.paycheck-accordion-body{padding:12px 14px 15px!important}
+#board{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:start!important;gap:12px!important}
+#board>.panel{display:block!important;min-width:0!important;width:100%!important;margin:0!important;padding:12px!important;border:1px solid #455772!important;border-radius:11px!important;background:#1b2940!important}
+#board>.panel h2{font-size:16px!important;margin:0 0 7px!important}
+#board>.panel .summary{margin:0 0 10px!important}
+#board .tile{width:100%!important}
+#forecastPanel{margin:0 0 12px!important;padding:12px!important;border:1px solid #40536f!important;background:#17253a!important}
+#reportPanel>.finance-report{padding:12px 16px 16px!important}
+#manageSection #manage>div{gap:8px}
+@media(max-width:700px){
+ main{padding:10px!important}
+ #setupSection>summary,#addSection>summary,#insightsSection>summary,#paychecksSection>summary,#reportPanel>summary,#manageSection>summary{min-height:46px!important;padding:12px!important}
+ #paychecksSection>.paycheck-accordion-body{padding:9px!important}
+ #board{grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
+ #board>.panel{padding:10px!important}
+ .board-heading{gap:8px!important}
+ .calendar-nav{width:100%!important;justify-content:flex-start!important}
+ .calendar-nav button{flex:1;min-width:0!important}
+ #forecastPanel{padding:10px!important}
+ #setupSection>.section-content,#addSection>.section-content,#manageSection>.section-content{padding:12px!important}
+}
+/* Date inputs must fit within every responsive grid column. */
+.fields > label,.date-field{min-width:0;max-width:100%;width:100%}
+.date-field input{display:block;min-width:0;width:100%;font-size:clamp(13px,1.5vw,16px);padding:10px 9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:680px){.date-field input{font-size:16px;padding:11px}}
+/* Date picker is rendered above all accordion panels and kept within viewport. */
+.date-calendar{position:fixed!important;z-index:99999!important;width:min(310px,calc(100vw - 24px))!important;max-height:min(440px,calc(100dvh - 24px));overflow-y:auto;overscroll-behavior:contain}
+.date-calendar[hidden]{display:none!important}
+.date-field input{width:100%!important;min-width:0!important}
+@media(max-width:680px){.date-calendar{width:min(340px,calc(100vw - 24px))!important}}
+
+/* Stacked card preview — the existing budgeting logic and IDs are unchanged. */
+.card-grid-app{display:grid;grid-template-columns:minmax(0,1fr);column-gap:14px;row-gap:12px;max-width:1040px}
+.card-grid-app>h1{grid-column:1/-1;margin:0 0 5px!important;font-size:clamp(22px,3vw,28px);letter-spacing:-.5px}
+.card-grid-app>details{grid-column:auto;min-width:0;width:100%;max-width:513px;margin:0!important;padding:0!important;border:1px solid #355981!important;border-radius:14px!important;background:linear-gradient(140deg,#12263f,#101d31)!important;overflow:visible;box-shadow:0 2px 14px #0002}
+.card-grid-app>details[open]{grid-column:1/-1;max-width:1040px;background:#142338!important;border-color:#5c8dca!important}
+.card-grid-app>details>summary{display:flex!important;align-items:center!important;gap:13px!important;list-style:none!important;padding:16px!important;min-height:94px!important;cursor:pointer!important;color:#eaf4ff!important;font-size:14px!important;font-weight:600!important;position:relative!important;border-radius:14px!important}
+.card-grid-app>details>summary::-webkit-details-marker{display:none!important}
+.card-grid-app>details>summary:after{content:none!important;display:none!important}
+.card-icon{width:45px;height:45px;border-radius:12px;background:#173d72;display:grid;place-items:center;flex:0 0 45px;color:#65a2ff}
+.card-icon-svg{width:25px;height:25px}
+.card-copy{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+.card-copy strong{font-size:14px;line-height:1.2;font-weight:750}
+.card-description{font-size:11px;line-height:1.35;color:#a9c4e4;font-weight:400}
+.card-arrow{height:9px;width:9px;border-right:2px solid #7cb5ff;border-bottom:2px solid #7cb5ff;transform:rotate(45deg);flex:0 0 9px;margin:0 4px 4px 0;transition:transform .2s}
+.card-grid-app>details[open]>summary .card-arrow{transform:rotate(225deg);margin-top:8px}
+.card-grid-app>details[open]>summary{border-bottom:1px solid #314a68;border-radius:14px 14px 0 0;min-height:78px!important}
+.card-grid-app>details>summary:focus-visible{outline:2px solid #84b7ff;outline-offset:3px}
+.card-grid-app>details>summary:hover{background:#213b5a88}
+.card-grid-app #insightsSection>.three-paycheck{margin:0!important;border:0!important;border-radius:0 0 14px 14px!important}
+.card-grid-app #insightsSection>.three-paycheck:before{display:none}
+.card-grid-app #paychecksSection>.paycheck-accordion-body{padding:12px 14px 16px!important}
+.card-grid-app #forecastPanel{border-radius:12px!important}
+.card-grid-app #reportPanel>.finance-report{padding:14px 16px 18px!important}
+.card-grid-app #setupSection>.section-content,.card-grid-app #addSection>.section-content,.card-grid-app #manageSection>.section-content{padding:15px 16px!important}
+.card-grid-app .compact-insights>summary{display:flex!important}
+@media(max-width:700px){
+ .card-grid-app{grid-template-columns:minmax(0,1fr);gap:9px!important;padding:12px!important}
+ .card-grid-app>details{max-width:none}
+ .card-grid-app>details>summary{min-height:112px!important;flex-direction:column;align-items:flex-start!important;padding:12px!important;gap:9px!important}
+ .card-grid-app .card-icon{width:35px;height:35px;flex-basis:35px;border-radius:9px}
+ .card-grid-app .card-icon-svg{width:21px;height:21px}
+ .card-grid-app .card-copy{gap:4px;padding-right:12px}
+ .card-grid-app .card-copy strong{font-size:12px}
+ .card-grid-app .card-description{font-size:10px}
+ .card-grid-app .card-arrow{position:absolute;right:13px;top:22px;width:8px;height:8px}
+ .card-grid-app>details[open]>summary{flex-direction:row;align-items:center!important;min-height:66px!important}
+ .card-grid-app>details[open]>summary .card-arrow{top:24px}
+ .card-grid-app #board{grid-template-columns:1fr!important}
+}
+@media(max-width:360px){.card-grid-app{grid-template-columns:1fr}.card-grid-app>details>summary{flex-direction:row;align-items:center!important;min-height:75px!important}}
+/* Uniform full-width cards whether expanded or collapsed. */
+.card-grid-app{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:12px!important}
+.card-grid-app>h1{width:100%!important}
+.card-grid-app>details,.card-grid-app>details[open]{display:block!important;width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box!important;grid-column:auto!important}
+.card-grid-app>details>summary,.card-grid-app>details[open]>summary{display:flex!important;flex-direction:row!important;align-items:center!important;min-height:90px!important;padding:15px 17px!important;gap:13px!important;box-sizing:border-box!important}
+.card-grid-app>details>summary::before,.card-grid-app>details>summary::after{content:none!important;display:none!important}
+.card-grid-app>details>summary .card-arrow{position:static!important;display:block!important;flex:0 0 9px!important;transform:rotate(45deg);margin:0 6px 4px 0!important}
+.card-grid-app>details[open]>summary .card-arrow{transform:rotate(225deg);margin:5px 6px 0 0!important}
+.card-grid-app>details>summary .card-copy{flex:1!important;min-width:0!important}
+@media(max-width:700px){.card-grid-app{gap:9px!important}.card-grid-app>details>summary,.card-grid-app>details[open]>summary{min-height:76px!important;padding:12px!important;flex-direction:row!important;align-items:center!important;gap:10px!important}.card-grid-app .card-icon{width:39px!important;height:39px!important;flex-basis:39px!important}.card-grid-app .card-copy{padding-right:0!important}}
+/* Refined charts: larger type, accessible legend and balanced mobile sizing */
+.report-charts{margin-top:18px;padding:15px;border:1px solid #314d70;border-radius:15px;background:linear-gradient(160deg,#142840,#0d1b2d)}
+.chart-toggle{display:flex;gap:5px;padding:4px;background:#0a1829;border:1px solid #2c4666;border-radius:12px;width:max-content;max-width:100%;margin-bottom:14px}
+.chart-toggle button{border:0!important;border-radius:9px!important;min-width:100px;padding:9px 14px!important;background:transparent!important;color:#b5c9df!important}
+.chart-toggle button.chart-active{background:#265a99!important;color:white!important;box-shadow:0 2px 8px #0004}
+.chart-frame{height:270px;min-height:270px;margin-top:10px}
+.chart-frame canvas{display:block;width:100%;height:100%}
+.chart-legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}
+.chart-legend-row{display:flex;align-items:center;gap:8px;background:#102238;border:1px solid #294663;border-radius:9px;padding:10px;min-width:0;font-size:12px}
+.chart-legend-row i{width:10px;height:10px;flex:none;border-radius:50%}
+.chart-legend-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
+.chart-legend-row strong{white-space:nowrap;font-size:11px}
+@media(max-width:680px){.report-charts{padding:11px}.chart-frame{height:230px;min-height:230px}.chart-legend{grid-template-columns:1fr}.chart-toggle{width:100%}.chart-toggle button{flex:1;min-width:0}}
+/* Independent legend columns prevent a tall Other breakdown from stretching a neighbor. */
+.chart-legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:start}
+.chart-legend-column{display:flex;flex-direction:column;gap:8px;min-width:0;align-self:start}
+@media(max-width:680px){.chart-legend{grid-template-columns:1fr}.chart-legend-column{gap:8px}}
+/* Pie legend: expandable details preserve the donut's existing appearance */
+.other-breakdown{min-width:0;width:100%;align-self:stretch;display:block;box-sizing:border-box}
+.other-breakdown>summary.chart-legend-row{display:flex;width:100%;box-sizing:border-box}
+.other-breakdown>summary{list-style:none;cursor:pointer;position:relative;padding-right:22px}
+.other-breakdown>summary::-webkit-details-marker{display:none}
+.other-breakdown>summary:after{content:'⌄';position:absolute;right:7px;font-size:16px;color:#a9c8ef}
+.other-breakdown[open]>summary:after{content:'⌃'}
+.other-breakdown-list{padding:5px 8px 8px;border:1px solid #294663;border-top:0;border-radius:0 0 9px 9px;background:#0d1c30}
+.other-breakdown-list>div{display:flex;justify-content:space-between;gap:10px;padding:8px 2px;border-bottom:1px solid #243d56;font-size:12px}
+.other-breakdown-list>div:last-child{border-bottom:0}
+.other-breakdown-list strong{white-space:nowrap}
+.chart-missing{font-size:12px;color:#9bb5d1;margin:11px 0 0}
+.chart-missing.has-missing{color:#f4c47b}
+
+/* v1.32 compact, mobile-first bill management table */
+.bill-table-toolbar{display:flex;gap:10px;align-items:end;margin:12px 0;flex-wrap:wrap}
+.bill-table-toolbar label{flex:1;min-width:150px;font-size:12px}
+.bill-table-toolbar input,.bill-table-toolbar select{width:100%;margin-top:5px;min-height:40px}
+.bill-search-label{flex:2!important}
+.bill-table-wrap{width:100%;overflow-x:auto;border:1px solid #34506c;border-radius:11px;background:#0e1c2e}
+.bill-management-table{border-collapse:collapse;width:100%;font-size:12px;text-align:left}
+.bill-management-table th{padding:12px 10px;background:#172b43;color:#b6d2ef;font-size:11px;font-weight:700;white-space:nowrap}
+.bill-management-table td{padding:9px 10px;border-top:1px solid #304660;vertical-align:middle}
+.bill-management-table tr:hover td{background:#162940}
+.bill-table-name{display:flex;align-items:center;gap:9px;min-width:135px}
+.bill-category-icon{width:31px;height:31px;display:grid;place-items:center;flex:none;background:#173e6d;color:#67b7ff;border-radius:8px}
+.bill-category-icon svg{width:19px;height:19px}
+.bill-category-badge{background:#193b60;color:#b8d9fa;border:1px solid #315e87;border-radius:6px;padding:4px 7px;white-space:nowrap}
+.bill-actions{white-space:nowrap;text-align:right}
+.bill-actions button{min-height:33px;padding:6px 10px;font-size:12px;margin-left:5px}
+.backup-subsection{margin-top:15px;border:1px solid #34506c;border-radius:10px;background:#101f32;overflow:hidden}
+.backup-subsection>summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:13px 15px;font-weight:700;list-style:none}
+.backup-subsection>summary::-webkit-details-marker{display:none}
+.backup-chevron{font-size:18px;color:#73b9ff}.backup-subsection[open] .backup-chevron{transform:rotate(180deg)}
+.backup-body{padding:12px 15px;border-top:1px solid #34506c}
+@media(max-width:640px){.bill-management-table thead{display:none}.bill-management-table,.bill-management-table tbody,.bill-management-table tr{display:block}.bill-management-table tr{display:grid;grid-template-columns:1fr auto;gap:4px 8px;padding:10px;border-bottom:1px solid #304660}.bill-management-table tr:last-child{border-bottom:0}.bill-management-table td{border:0;padding:2px 0}.bill-table-name{grid-column:1;grid-row:1;min-width:0}.bill-management-table td[data-label="Amount"]{grid-column:2;grid-row:1;text-align:right;font-weight:700;align-self:center}.bill-management-table td[data-label="Frequency"]{grid-column:1;grid-row:2;padding-left:40px;color:#aac1dc}.bill-management-table td[data-label="Category"]{grid-column:1;grid-row:3;padding-left:40px}.bill-actions{grid-column:2;grid-row:2 / span 2;align-self:end}.bill-actions button{min-height:36px}.bill-table-toolbar label{min-width:125px}.bill-search-label{flex-basis:100%!important}.backup-body{padding:10px}}
+
+/* Distinct category colors — badges and matching bill icons */
+.bill-category-badge,.bill-category-icon{--cat-bg:#173e6d;--cat-fg:#8dc8ff;--cat-border:#326ca6;background:var(--cat-bg)!important;color:var(--cat-fg)!important;border:1px solid var(--cat-border)!important}
+[data-category="Credit Card"]{--cat-bg:#173d70;--cat-fg:#93c5fd;--cat-border:#3666a6}
+[data-category="Auto"]{--cat-bg:#4b2c20;--cat-fg:#fdba74;--cat-border:#995c36}
+[data-category="Internet"]{--cat-bg:#173e48;--cat-fg:#67e8f9;--cat-border:#2c7885}
+[data-category="Music"]{--cat-bg:#2b3e27;--cat-fg:#a3e635;--cat-border:#587d35}
+[data-category="Student Loan"]{--cat-bg:#423056;--cat-fg:#d8b4fe;--cat-border:#7e57a5}
+[data-category="Utility"]{--cat-bg:#4a3b19;--cat-fg:#fde68a;--cat-border:#937327}
+[data-category="Housing"]{--cat-bg:#442b3c;--cat-fg:#f9a8d4;--cat-border:#925674}
+.bill-category-badge{display:inline-flex;align-items:center;font-weight:650;min-height:27px}
+@media(max-width:640px){.bill-category-badge{max-width:100%;white-space:normal}.bill-category-icon{width:33px;height:33px}}
+</style><main class="card-grid-app"><h1>Paycheck Budget <small style="font-size:11px">v1.33 CATEGORY COLORS PREVIEW</small></h1>
+<details class="panel collapsible" id="setupSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9l2.1 2.1m10 10 2.1 2.1m0-14.2L17 7m-10 10-2.1 2.1"/></svg></span><span class="card-copy"><strong>Paycheck setup</strong><span class="card-description">Set payday, income and frequency</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="fields"><label>Next payday<input id="payday" type="date"></label><label>Take-home per paycheck ($)<input id="income" type="number" step=".01" placeholder="Optional"></label><label>Pay frequency<select id="freq"><option value="14">Every 2 weeks</option><option value="7">Weekly</option><option value="month">Monthly</option></select></label></div></div></details>
+<details class="panel collapsible" id="addSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></span><span class="card-copy"><strong>Add a bill</strong><span class="card-description">Create a bill or change its due date</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="fields"><label>Bill name<input id="billname" placeholder="e.g. Rent"></label><label>Amount ($)<input id="amount" type="number" step=".01" placeholder="Optional"></label><label>Due day (1–31)<input id="day" type="number" min="1" max="31" placeholder="e.g. 15"></label><label>Amount behavior<select id="amountType"><option value="fixed">Fixed — carry amount forward</option><option value="variable">Variable — enter each occurrence</option></select></label><label>Repeats<select id="repeat"><option value="monthly">Monthly</option><option value="once">One time</option><option value="6months">Every 6 months</option><option value="yearly">Yearly</option></select></label><label>First due date<input id="first" type="date"></label></div><p><button type="button" id="add">+ Add bill</button> <button type="button" class="alt" id="cancel" hidden>Cancel edit</button></p><div class="banner" id="notice" role="status"></div></div></details>
+<details class="compact-insights panel" id="insightsSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-13 4h3m3 0h3"/></svg></span><span class="card-copy"><strong>Payday insights</strong><span class="card-description">Explore upcoming paydays</span></span><span class="card-arrow" aria-hidden="true"></span></summary><section class="three-paycheck" id="threePaycheckBox" aria-live="polite" hidden>
   <div class="three-top"><span id="threeStatus" class="three-pill">UPCOMING</span></div>
   <div class="three-main"><div><div class="three-kicker">NEXT THREE-PAYCHECK MONTH</div><h2 id="threeHeadline">Calculating…</h2><p id="threeSubtitle">Based on your biweekly payday schedule</p></div></div>
   <div class="three-payday-row" id="threePaydayRow"></div>
   <div class="three-footer"><div class="three-footer-note"><span aria-hidden="true">ⓘ</span> This is an extra payday, not necessarily extra spending money.</div><details class="three-details"><summary>12-month outlook <span class="three-chevron">⌄</span></summary><div id="threeMonths" class="three-months"></div></details></div>
 </section></details>
-<details class="panel paycheck-accordion" id="paychecksSection" open><summary>Paychecks & bills </summary><div class="paycheck-accordion-body"><section class="panel finance-panel" id="forecastPanel"><div class="finance-head"><div><h2>Paycheck forecast</h2></div></div><div id="forecastStatus" role="status" aria-live="polite"></div><div id="forecastRows"></div><p class="finance-note">Based on scheduled bills; missing variable amounts are excluded.</p></section><div class="board-heading"><h2 id="paycheckBoardTitle">Both paychecks</h2><div class="calendar-nav"><button class="alt" id="backCurrent" hidden>↩ Current</button><button class="alt" id="earlier">← Earlier</button><button class="alt" id="later">Later →</button></div></div><div class="mobile-tabs" id="mobileTabs" aria-label="Choose paycheck"><button type="button" id="tab0" class="active">Paycheck 1</button><button type="button" id="tab1" class="alt">Paycheck 2</button></div>
+<details class="panel paycheck-accordion" id="paychecksSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="15" rx="3"/><path d="M3 9V6a3 3 0 0 1 3-3h12m-3 11h6"/><circle cx="16" cy="14" r="1"/></svg></span><span class="card-copy"><strong>Paychecks & bills</strong><span class="card-description">Manage bills for each paycheck</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="paycheck-accordion-body"><section class="panel finance-panel" id="forecastPanel"><div class="finance-head"><div><h2>Paycheck forecast</h2></div></div><div id="forecastStatus" role="status" aria-live="polite"></div><div id="forecastRows"></div><p class="finance-note">Based on scheduled bills; missing variable amounts are excluded.</p></section><div class="board-heading"><h2 id="paycheckBoardTitle">Both paychecks</h2><div class="calendar-nav"><button class="alt" id="backCurrent" hidden>↩ Current</button><button class="alt" id="earlier">← Earlier</button><button class="alt" id="later">Later →</button></div></div><div class="mobile-tabs" id="mobileTabs" aria-label="Choose paycheck"><button type="button" id="tab0" class="active">Paycheck 1</button><button type="button" id="tab1" class="alt">Paycheck 2</button></div>
 <div id="board"></div></div></details>
 
-<details class="panel finance-panel" id="reportPanel"><summary>Monthly spending reports </summary><div class="finance-report"><div class="report-month-nav"><button type="button" class="alt" id="reportPrev" aria-label="Previous report month">←</button><label class="report-month-label">Month <input id="reportMonth" type="month" aria-label="Choose spending report month"></label><button type="button" class="alt" id="reportNext" aria-label="Next report month">→</button></div><div id="reportContent"></div><p class="finance-note">Grouped by bill due date. “Paid” means marked paid in this app, not bank-verified spending. Unset variable amounts are excluded.</p></div></details>
+<details class="panel finance-panel" id="reportPanel"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V12m6 8V5m6 15v-8m4 8V8"/></svg></span><span class="card-copy"><strong>Monthly spending reports</strong><span class="card-description">Review your monthly expenses</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="finance-report"><div class="report-month-nav"><button type="button" class="alt" id="reportPrev" aria-label="Previous report month">←</button><label class="report-month-label">Month <input id="reportMonth" type="month" aria-label="Choose spending report month"></label><button type="button" class="alt" id="reportNext" aria-label="Next report month">→</button></div><div id="reportContent"></div>
+<div class="report-charts">
+<div class="chart-toggle" role="group" aria-label="Spending chart view"><button type="button" id="chartGraph" class="chart-active" aria-pressed="true">Graph</button><button type="button" id="chartPie" aria-pressed="false">Pie chart</button></div>
+<h3 id="chartTitle">Monthly spending trend</h3><p id="chartDescription" class="finance-note">Scheduled bill totals for the last six months.</p>
+<div class="chart-frame"><canvas id="spendingChart" role="img" aria-label="Monthly spending chart"></canvas></div><div id="chartLegend" class="chart-legend" aria-live="polite"></div><p id="chartMissing" class="chart-missing" role="status"></p>
+</div><p class="finance-note">Grouped by bill due date. “Paid” means marked paid in this app, not bank-verified spending. Unset variable amounts are excluded.</p></div></details>
 
 
 
-<details class="panel collapsible" id="manageSection"><summary>Manage bills & backups </summary><div class="section-content"><div id="manage"></div><div class="fields"><label>Import file (JSON backup or CSV bill list)<input id="importfile" type="file" accept=".json,.csv,application/json,text/csv"></label><label>Import behavior<select id="importmode"><option value="merge">Merge with existing bills (skip duplicates)</option><option value="replace">Replace entire budget</option></select></label></div>
+<details class="panel collapsible" id="manageSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/></svg></span><span class="card-copy"><strong>Manage bills & backups</strong><span class="card-description">Edit, export or import your data</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="bill-table-toolbar"><label class="bill-search-label">Search bills<input id="manageSearch" type="search" placeholder="Search by bill name" autocomplete="off"></label><label>Category<select id="manageCategory"><option value="all">All categories</option><option value="Credit Card">Credit cards</option><option value="Auto">Auto</option><option value="Internet">Internet</option><option value="Music">Music</option><option value="Student Loan">Student loan</option><option value="Utility">Utilities</option><option value="Housing">Housing</option></select></label></div><div id="manage" class="bill-table-wrap"></div><details class="backup-subsection"><summary>Import, export &amp; backups <span class="backup-chevron">⌄</span></summary><div class="backup-body"><div class="fields"><label>Import file (JSON backup or CSV bill list)<input id="importfile" type="file" accept=".json,.csv,application/json,text/csv"></label><label>Import behavior<select id="importmode"><option value="merge">Merge with existing bills (skip duplicates)</option><option value="replace">Replace entire budget</option></select></label></div>
 <p><button id="import" type="button">Import bills</button> <button id="export" class="alt">Export backup</button> <button id="reset" class="danger">Clear all bills</button></p>
-<p class="muted">Your budget is stored on this device. Export backups regularly. CSV headers: name, amount, day, repeat, first (optional). JSON backups restore paycheck assignments and paid status when replacing. Export a backup before replacing.</p></div></details></main>
+<p class="muted">Your budget is stored on this device. Export backups regularly. CSV headers: name, amount, day, repeat, first (optional). JSON backups restore paycheck assignments and paid status when replacing. Export a backup before replacing.</p></div></details></div></details></main>
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id),storage='paycheck-budget-pwa-v1';
@@ -345,6 +524,11 @@ function renderThreePaycheckDetector(){
 }
 
 $('reportMonth').addEventListener('change',renderMonthlyReport);
+let chartMode='graph';
+$('chartGraph').onclick=()=>{chartMode='graph';drawSpendingChart()};
+$('chartPie').onclick=()=>{chartMode='pie';drawSpendingChart()};
+window.addEventListener('resize',()=>{if($('reportPanel').open)drawSpendingChart()});
+$('reportPanel').addEventListener('toggle',()=>{if($('reportPanel').open)requestAnimationFrame(drawSpendingChart)});
 function shiftReportMonth(delta){
  const el=$('reportMonth');if(!el.value){const now=new Date();el.value=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')}
  const [y,m]=el.value.split('-').map(Number);const date=new Date(y,m-1+delta,1,12);
@@ -388,14 +572,108 @@ function renderMonthlyReport(){
  out.replaceChildren();let stats=document.createElement('div');stats.className='report-stats';
  for(const [label,value] of [['Scheduled',scheduled],['Marked paid',paid],['Unpaid',scheduled-paid]]){let box=document.createElement('div');box.className='report-stat';let small=document.createElement('small');small.textContent=label;let strong=document.createElement('strong');strong.textContent=money(value);box.append(small,strong);stats.append(box)}out.append(stats);
  if(unknown){let note=document.createElement('p');note.className='report-unknown';note.textContent=''+unknown+' variable bill'+(unknown===1?'':'s')+' missing amounts';out.append(note)}
- if(!groups.size){let empty=document.createElement('p');empty.className='finance-note';empty.textContent=s.bills.length===0?'No bills saved. Add a bill above or import your backup to populate spending reports.':bills.length===0?'No bills are due this month. Use the month arrows to view other months.':'No bills have known amounts this month. Enter the missing variable amounts to include them.';out.append(empty);return}
+ if(!groups.size){let empty=document.createElement('p');empty.className='finance-note';empty.textContent=s.bills.length===0?'No bills saved in this preview. Add a bill above or import your backup to populate spending reports.':bills.length===0?'No bills are due this month. Use the month arrows to view other months.':'No bills have known amounts this month. Enter the missing variable amounts to include them.';out.append(empty);drawSpendingChart();return}
  for(const [name,amount] of [...groups.entries()].sort((a,b)=>b[1]-a[1])){let row=document.createElement('div');row.className='report-line';let top=document.createElement('div');top.className='report-line-top';let n=document.createElement('span');n.textContent=name;let v=document.createElement('strong');v.textContent=money(amount);top.append(n,v);let bar=document.createElement('div');bar.className='report-bar';let fill=document.createElement('div');fill.className='report-bar-fill';fill.style.width=(scheduled?Math.max(0,Math.min(100,amount/scheduled*100)):0)+'%';bar.append(fill);row.append(top,bar);out.append(row)}
+ drawSpendingChart();
 }
 
+
+function drawSpendingChart(){
+ const graph=$('chartGraph'),pie=$('chartPie'),title=$('chartTitle'),description=$('chartDescription'),legend=$('chartLegend'),canvas=$('spendingChart');
+ if(!canvas||!$('reportMonth').value)return;
+ graph.classList.toggle('chart-active',chartMode==='graph');pie.classList.toggle('chart-active',chartMode==='pie');
+ graph.setAttribute('aria-pressed',String(chartMode==='graph'));pie.setAttribute('aria-pressed',String(chartMode==='pie'));
+ title.textContent=chartMode==='graph'?'Six-month spending trend':'Where your money goes';
+ description.textContent=chartMode==='graph'?'Scheduled bill totals by month.':'Share of scheduled bills for the selected month.';
+ if(!$('reportPanel').open)return;
+ const rect=canvas.getBoundingClientRect();if(rect.width<10)return;
+ const w=rect.width,h=rect.height,dpr=Math.min(window.devicePixelRatio||1,2);
+ canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+ const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ legend.replaceChildren();
+ const missing=$('chartMissing');if(missing){const [yy,mm]=$('reportMonth').value.split('-').map(Number);const unknown=occurrences(new Date(yy,mm-1,1,12),new Date(yy,mm,0,12)).filter(x=>{const a=occurrenceAmount(x);return a===null||a===''||!Number.isFinite(Number(a))}).length;missing.textContent=unknown?unknown+' bill'+(unknown===1?'':'s')+' excluded — amount'+(unknown===1?'':'s')+' not entered.':'All bill amounts for this month are included.';missing.classList.toggle('has-missing',unknown>0)}
+ const [year,month]=$('reportMonth').value.split('-').map(Number);
+ const colors=['#60a5fa','#2dd4bf','#fbbf24','#a78bfa','#fb7185','#38bdf8','#a3e635'];
+ const amountFor=x=>{const a=occurrenceAmount(x);return a===null||a===''||!Number.isFinite(Number(a))?null:Number(a)};
+ const monthBills=(y,m)=>occurrences(new Date(y,m-1,1,12),new Date(y,m,0,12));
+ const moneyLabel=n=>'$'+Math.round(n).toLocaleString('en-US');
+ const empty=message=>{ctx.fillStyle='#a9bfd8';ctx.textAlign='center';ctx.font='13px system-ui';ctx.fillText(message,w/2,h/2);canvas.setAttribute('aria-label',message)};
+ const rounded=(x,y,ww,hh,r)=>{ctx.beginPath();ctx.roundRect(x,y,ww,hh,r)};
+ if(chartMode==='graph'){
+  const rows=[];for(let i=5;i>=0;i--){const d=new Date(year,month-1-i,1,12),bs=monthBills(d.getFullYear(),d.getMonth()+1);rows.push({label:d.toLocaleDateString('en-US',{month:'short'}),total:bs.reduce((n,x)=>n+(amountFor(x)??0),0)})}
+  const maximum=Math.max(...rows.map(r=>r.total));if(maximum<=0){empty('Add bill amounts to see your trend');return}
+  const left=w<390?42:58,right=15,top=38,bottom=35,plotW=w-left-right,plotH=h-top-bottom;
+  const ceiling=Math.ceil(maximum/250)*250||maximum;
+  ctx.font='11px system-ui';ctx.textAlign='right';
+  for(let i=0;i<4;i++){const yy=top+plotH*i/3;ctx.strokeStyle='#304660';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(w-right,yy);ctx.stroke();ctx.fillStyle='#91a9c5';ctx.fillText(moneyLabel(ceiling*(1-i/3)),left-8,yy+4)}
+  const points=rows.map((r,i)=>({x:left+(i+.5)*plotW/6,y:top+plotH-r.total/ceiling*plotH,...r}));
+  ctx.beginPath();ctx.moveTo(points[0].x,top+plotH);points.forEach(p=>ctx.lineTo(p.x,p.y));ctx.lineTo(points.at(-1).x,top+plotH);ctx.closePath();
+  const fill=ctx.createLinearGradient(0,top,0,top+plotH);fill.addColorStop(0,'rgba(96,165,250,.35)');fill.addColorStop(1,'rgba(96,165,250,.015)');ctx.fillStyle=fill;ctx.fill();
+  ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.strokeStyle='#60a5fa';ctx.lineWidth=3;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
+  points.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x,p.y,i===5?5:3.5,0,Math.PI*2);ctx.fillStyle=i===5?'#f8fafc':'#60a5fa';ctx.fill();ctx.textAlign='center';ctx.fillStyle='#c6d7ea';ctx.font='11px system-ui';ctx.fillText(p.label,p.x,h-12)});
+  const last=points.at(-1);ctx.fillStyle='#eaf4ff';ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.fillText(moneyLabel(last.total),Math.min(w-38,Math.max(38,last.x)),Math.max(15,last.y-12));
+  canvas.setAttribute('aria-label','Monthly scheduled spending: '+rows.map(r=>r.label+' '+moneyLabel(r.total)).join(', '));
+ }else{
+  const grouped=new Map();monthBills(year,month).forEach(x=>{const v=amountFor(x);if(v===null||v<=0)return;const name=x.b.name||'Unnamed bill';grouped.set(name,(grouped.get(name)||0)+v)});
+  let rows=[...grouped].sort((a,b)=>b[1]-a[1]);if(!rows.length){empty('Add bill amounts to see your breakdown');return}
+  const totalAll=rows.reduce((n,r)=>n+r[1],0);
+  const otherBills=rows.filter(r=>r[1]/totalAll<0.03);
+  rows=[...rows.filter(r=>r[1]/totalAll>=0.03)];
+  if(otherBills.length)rows.push(['Other',otherBills.reduce((n,r)=>n+r[1],0)]);
+  const total=rows.reduce((n,r)=>n+r[1],0),cx=w/2,cy=h/2,radius=Math.min(w*.32,h*.42,116),inner=radius*.69;
+  let start=-Math.PI/2;
+  rows.forEach(([name,value],i)=>{const sweep=value/total*Math.PI*2,end=start+sweep;ctx.beginPath();ctx.arc(cx,cy,radius,start+.012,end-.012);ctx.arc(cx,cy,inner,end-.012,start+.012,true);ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();start=end;
+   const item=document.createElement('div');item.className='chart-legend-row';const swatch=document.createElement('i');swatch.style.background=colors[i%colors.length];const label=document.createElement('span');label.textContent=name;const val=document.createElement('strong');val.textContent=Math.round(value/total*100)+'%  ·  '+money(value);item.append(swatch,label,val);
+   if(name==='Other'&&otherBills.length){
+    const details=document.createElement('details');details.className='other-breakdown';
+    const summary=document.createElement('summary');summary.className='chart-legend-row';summary.append(swatch,label,val);
+    summary.setAttribute('aria-label','Expand Other to view '+otherBills.length+' smaller bills');
+    const inner=document.createElement('div');inner.className='other-breakdown-list';
+    otherBills.forEach(([bill,amount])=>{const row=document.createElement('div');const n=document.createElement('span');n.textContent=bill;const v=document.createElement('strong');v.textContent=Math.round(amount/total*100)+'% · '+money(amount);row.append(n,v);inner.append(row)});
+    details.append(summary,inner);legend.append(details);
+   }else legend.append(item)});
+  // Move legend entries into independent vertical columns, without changing the donut.
+  const entries=[...legend.children];legend.replaceChildren();
+  const colA=document.createElement('div'),colB=document.createElement('div');
+  colA.className='chart-legend-column';colB.className='chart-legend-column';
+  entries.forEach((entry,i)=>(i%2===0?colA:colB).append(entry));
+  legend.append(colA,colB);
+  ctx.fillStyle='#9db7d5';ctx.textAlign='center';ctx.font='11px system-ui';ctx.fillText('TOTAL BILLS',cx,cy-10);
+  ctx.fillStyle='#f3f8ff';ctx.font='bold '+(w<360?'20':'24')+'px system-ui';ctx.fillText(moneyLabel(total),cx,cy+19);
+  canvas.setAttribute('aria-label','Monthly bill shares: '+rows.map(r=>r[0]+' '+Math.round(r[1]/total*100)+' percent').join(', '));
+ }
+}
+
+const billIcons={
+ 'Credit Card':'<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h5"/>',
+ 'Auto':'<path d="M5 11 7 6h10l2 5M4 11h16v7H4zM7 18v2m10-2v2M7 14h2m6 0h2"/>',
+ 'Internet':'<path d="M2 9a16 16 0 0 1 20 0M5 12a11 11 0 0 1 14 0M8 15a6 6 0 0 1 8 0"/><circle cx="12" cy="19" r="1"/>',
+ 'Music':'<path d="M9 18V5l11-2v13M9 8l11-2"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="17" cy="16" rx="3" ry="2"/>',
+ 'Student Loan':'<path d="m2 9 10-5 10 5-10 5zM6 12v5c3 3 9 3 12 0v-5M22 9v7"/>',
+ 'Utility':'<path d="m13 2-9 12h7l-1 8 10-13h-7z"/>',
+ 'Housing':'<path d="m2 11 10-8 10 8M5 10v11h14V10M10 21v-7h4v7"/>'
+};
+function billCategory(b){const n=(b.name||'').toLowerCase();if(/insurance/.test(n))return 'Auto';if(/verizon/.test(n))return 'Internet';if(/spotify/.test(n))return 'Music';if(/student.loan/.test(n))return 'Student Loan';if(/pseg/.test(n))return 'Utility';if(/^rent$/.test(n))return 'Housing';return 'Credit Card'}
+function renderBillManagement(){
+ const host=$('manage');if(!host)return;host.replaceChildren();
+ const query=($('manageSearch')?.value||'').trim().toLowerCase(),category=$('manageCategory')?.value||'all';
+ const bills=s.bills.filter(b=>(!query||b.name.toLowerCase().includes(query))&&(category==='all'||billCategory(b)===category));
+ const table=document.createElement('table');table.className='bill-management-table';
+ table.innerHTML='<thead><tr><th>Bill</th><th>Amount</th><th>Frequency</th><th>Category</th><th>Actions</th></tr></thead>';
+ const tbody=document.createElement('tbody');
+ for(const b of bills){const tr=document.createElement('tr'),cat=billCategory(b);
+ const name=document.createElement('td');name.className='bill-table-name';const icon=document.createElement('span');icon.className='bill-category-icon';icon.dataset.category=cat;icon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+billIcons[cat]+'</svg>';const text=document.createElement('strong');text.textContent=b.name;name.append(icon,text);
+ const amt=document.createElement('td');amt.dataset.label='Amount';amt.textContent=b.amountType==='variable'?'Variable':b.amount==null||b.amount===''?'TBD':money(b.amount);
+ const repeat=document.createElement('td');repeat.dataset.label='Frequency';repeat.textContent=b.repeat;
+ const catTd=document.createElement('td');catTd.dataset.label='Category';const badge=document.createElement('span');badge.className='bill-category-badge';badge.dataset.category=cat;badge.textContent=cat;catTd.append(badge);
+ const actions=document.createElement('td');actions.className='bill-actions';const e=document.createElement('button');e.className='alt';e.type='button';e.textContent='Edit';e.onclick=()=>{editing=b.id;$('billname').value=b.name;$('amount').value=b.amount??'';$('day').value=b.day;$('repeat').value=b.repeat;$('amountType').value=b.amountType||'fixed';$('first').value=b.first||'';$('add').textContent='Save changes';$('cancel').hidden=false;$('addSection').open=true;$('addSection').scrollIntoView({behavior:'smooth',block:'start'})};const del=document.createElement('button');del.className='danger';del.type='button';del.textContent='Delete';del.onclick=()=>{if(!confirm('Delete '+b.name+'?'))return;s.bills=s.bills.filter(x=>x.id!==b.id);save();render()};actions.append(e,del);
+ tr.append(name,amt,repeat,catTd,actions);tbody.append(tr)
+ }table.append(tbody);host.append(table);if(!bills.length){const empty=document.createElement('p');empty.className='finance-note';empty.textContent=s.bills.length?'No bills match your search.':'No bills added yet.';host.append(empty)}
+}
 function render(){
 renderThreePaycheckDetector();
 $('payday').value=s.payday;$('income').value=s.income;$('freq').value=s.freq;
-let manage=$('manage');manage.replaceChildren();for(let b of s.bills){let r=document.createElement('div'),name=document.createElement('span');name.textContent=b.name+' · '+(b.amountType==='variable'?'Variable':'Fixed '+money(b.amount))+' · '+b.repeat;let e=document.createElement('button');e.className='alt';e.textContent='Edit';e.onclick=()=>{editing=b.id;$('billname').value=b.name;$('amount').value=b.amount??'';$('day').value=b.day;$('repeat').value=b.repeat;$('amountType').value=b.amountType||'fixed';$('first').value=b.first||'';$('add').textContent='Save changes';$('cancel').hidden=false;$('addSection').open=true;$('addSection').scrollIntoView({behavior:'smooth',block:'start'})};let del=document.createElement('button');del.className='danger';del.textContent='Delete';del.onclick=()=>{s.bills=s.bills.filter(x=>x.id!==b.id);save();render()};let actions=document.createElement('span');actions.append(e,' ',del);r.append(name,actions);manage.append(r)}
+renderBillManagement();
 let board=$('board');board.replaceChildren();let pays=dates();if(!pays.length){let p=document.createElement('div');p.className='panel';p.textContent='Add bills now, then enter your payday to display the two paycheck columns.';board.append(p);renderFinance();return}
 let today=new Date();today.setHours(12,0,0,0);
 let anchor=pays.findIndex((p,i)=>p<=today&&pays[i+1]>today);if(anchor<0)anchor=pays.findIndex(p=>p>=today);anchor=Math.max(0,anchor);
@@ -548,7 +826,7 @@ $('export').onclick=()=>{let a=document.createElement('a'),url=URL.createObjectU
 
 function installHorizontalCalendars(){
  for(const id of ['payday','first']){
-  const input=$(id);input.type='text';input.readOnly=true;input.placeholder='Choose date (YYYY-MM-DD)';
+  const input=$(id);input.type='text';input.readOnly=true;input.placeholder=id==='payday'?'Select next payday':'Select first due date';
   const wrapper=document.createElement('div');wrapper.className='date-field';input.parentNode.insertBefore(wrapper,input);wrapper.appendChild(input);
   const popup=document.createElement('div');popup.className='date-calendar';popup.hidden=true;wrapper.appendChild(popup);
   let view=new Date();view.setDate(1);
@@ -579,16 +857,33 @@ function installHorizontalCalendars(){
    const clear=document.createElement('button');clear.type='button';clear.textContent='Clear';clear.onclick=()=>{input.value='';popup.hidden=true;input.dispatchEvent(new Event('change',{bubbles:true}))};
    foot.append(today,clear);popup.append(foot)
   }
+  function placePopup(){
+    if(popup.hidden)return;
+    const r=input.getBoundingClientRect();
+    const w=Math.min(310,window.innerWidth-24);
+    const left=Math.max(12,Math.min(r.left,window.innerWidth-w-12));
+    const below=window.innerHeight-r.bottom;
+    const above=r.top;
+    const estimatedHeight=365;
+    const top=below>=Math.min(estimatedHeight,window.innerHeight-24)||below>=above
+      ? Math.min(r.bottom+6,window.innerHeight-80)
+      : Math.max(12,r.top-Math.min(estimatedHeight,above-8));
+    popup.style.left=left+'px';popup.style.top=top+'px';
+    popup.style.maxHeight=Math.max(100,window.innerHeight-top-12)+'px';
+  }
+  window.addEventListener('resize',placePopup);
+  window.addEventListener('scroll',placePopup,true);
   input.addEventListener('click',()=>{
    document.querySelectorAll('.date-calendar').forEach(x=>{if(x!==popup)x.hidden=true});
    popup.hidden=!popup.hidden;
-   if(!popup.hidden){view=input.value&&/^\d{4}-\d{2}-\d{2}$/.test(input.value)?dt(input.value):new Date();view=new Date(view.getFullYear(),view.getMonth(),1,12);draw()}
+   if(!popup.hidden){view=input.value&&/^\d{4}-\d{2}-\d{2}$/.test(input.value)?dt(input.value):new Date();view=new Date(view.getFullYear(),view.getMonth(),1,12);draw();placePopup()}
   });
  }
  document.addEventListener('click',e=>{if(!e.target.closest('.date-field'))document.querySelectorAll('.date-calendar').forEach(x=>x.hidden=true)})
 }
 installHorizontalCalendars();
 
+$('manageSearch').addEventListener('input',renderBillManagement);$('manageCategory').addEventListener('change',renderBillManagement);
 render();if(!s.payday)$('setupSection').open=true;
 })();
 </script><script>if('serviceWorker' in navigator && location.protocol==='https:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script></html>
