@@ -49,10 +49,46 @@ html{scroll-behavior:smooth}body{padding-bottom:env(safe-area-inset-bottom)}butt
  .board-heading h2{font-size:19px}
  .date-calendar{width:min(310px,calc(100vw - 48px))}
 }
-</style><main><h1>💸 Paycheck Budget <small style="font-size:12px">v1.3</small></h1><div class="banner">Your budget stays on this device. Export a backup regularly, especially before switching phones or browsers.</div>
+
+.three-paycheck{position:relative;overflow:hidden;border:1px solid #385576;background:linear-gradient(132deg,#182c47 0%,#182b43 56%,#142236 100%);border-radius:19px;padding:19px;margin:18px 0 22px;box-shadow:0 8px 28px #00000024}
+.three-paycheck:before{content:"";position:absolute;width:230px;height:230px;border-radius:50%;background:#497adf;filter:blur(90px);opacity:.12;right:-90px;top:-110px;pointer-events:none}
+.three-top{display:flex;justify-content:space-between;align-items:center;gap:12px;position:relative}
+.three-eyebrow{display:inline-flex;align-items:center;gap:8px;color:#b9d0f4;font-size:10px;letter-spacing:1.7px;font-weight:800}
+.three-dot{width:7px;height:7px;border-radius:50%;background:#8bc2ff;box-shadow:0 0 0 4px #8bc2ff18}
+.three-pill{background:#294b70;border:1px solid #466e9b;color:#d8ebff;border-radius:99px;padding:6px 10px;font-size:10px;font-weight:800;letter-spacing:.5px;white-space:nowrap}
+.three-main{display:flex;gap:14px;align-items:center;margin:21px 0 17px;position:relative}
+.three-icon{flex:none;display:grid;place-items:center;width:51px;height:51px;border-radius:15px;color:#e7f2ff;font-size:28px;background:linear-gradient(145deg,#3f7ae6,#254e98);box-shadow:0 7px 20px #1b4da544}
+.three-kicker{color:#9eb6d5;font-size:10px;font-weight:800;letter-spacing:1px}
+.three-main h2{font-size:clamp(21px,3vw,28px);line-height:1.2;margin:5px 0 5px;color:#fff;letter-spacing:-.7px}
+.three-main p{font-size:12px;color:#afc2dc;margin:0}
+.three-payday-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.three-date{border:1px solid #395572;background:#14243a9c;border-radius:11px;padding:12px 10px;min-width:0}
+.three-date .three-label{display:block;color:#a3b9d7;font-size:10px;letter-spacing:.5px;font-weight:700;margin-bottom:6px}
+.three-date .three-day{display:block;font-size:20px;font-weight:800;letter-spacing:-.5px;color:#f3f7ff}
+.three-date.third{border-color:#5799f5;background:linear-gradient(140deg,#244d82,#1c3b64)}
+.three-date.third .three-day{color:#bfe0ff}
+.three-footer{border-top:1px solid #38506c;margin-top:15px;padding-top:12px}
+.three-footer-note{font-size:11px;color:#b5c6db;display:flex;gap:7px;align-items:center}
+.three-details{margin-top:12px}
+.three-details>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;color:#c7ddfa;font-size:12px;font-weight:700;padding:8px 0}
+.three-details>summary::-webkit-details-marker{display:none}
+.three-details[open] .three-chevron{transform:rotate(180deg)}
+.three-months{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:8px}
+.three-month{border:1px solid #354c67;background:#14253a;border-radius:9px;padding:9px;min-width:0}
+.three-month.special{border-color:#5799f5;background:#23476e}
+.three-month b{display:block;font-size:12px;color:#edf4ff}
+.three-month small{display:block;margin-top:4px;font-size:11px;color:#b2c9e5}
+@media(max-width:680px){.three-paycheck{padding:15px;margin:14px 0 18px}.three-main{gap:11px;margin:17px 0 15px}.three-icon{width:45px;height:45px;font-size:25px}.three-main h2{font-size:22px}.three-date{padding:10px 8px}.three-date .three-day{font-size:18px}.three-months{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style><main><h1>💸 Paycheck Budget <small style="font-size:12px">v1.4</small></h1><div class="banner">Your budget stays on this device. Export a backup regularly, especially before switching phones or browsers.</div>
 <details class="panel collapsible" id="setupSection"><summary>Paycheck setup <span class="hint">Tap to expand</span></summary><div class="section-content"><div class="fields"><label>Next payday<input id="payday" type="date"></label><label>Take-home per paycheck ($)<input id="income" type="number" step=".01" placeholder="Optional"></label><label>Pay frequency<select id="freq"><option value="14">Every 2 weeks</option><option value="7">Weekly</option><option value="month">Monthly</option></select></label></div></div></details>
 <details class="panel collapsible" id="addSection"><summary>Add a bill ＋ <span class="hint">Tap to expand</span></summary><div class="section-content"><div class="fields"><label>Bill name<input id="billname" placeholder="e.g. Rent"></label><label>Amount ($)<input id="amount" type="number" step=".01" placeholder="Optional"></label><label>Due day (1–31)<input id="day" type="number" min="1" max="31" placeholder="e.g. 15"></label><label>Amount behavior<select id="amountType"><option value="fixed">Fixed — carry amount forward</option><option value="variable">Variable — enter each occurrence</option></select></label><label>Repeats<select id="repeat"><option value="monthly">Monthly</option><option value="once">One time</option><option value="6months">Every 6 months</option><option value="yearly">Yearly</option></select></label><label>First due date<input id="first" type="date"></label></div><p><button type="button" id="add">+ Add bill</button> <button type="button" class="alt" id="cancel" hidden>Cancel edit</button></p><div class="banner" id="notice" role="status"></div></div></details>
-<p class="muted">v1.3: Existing bills stay Fixed until you edit them to Variable. Variable amounts are stored separately for each due date. Export a JSON backup before any future deployment.</p><div class="board-heading"><h2>Next 2 paychecks</h2><div class="calendar-nav"><button class="alt" id="earlier">← Earlier</button><button class="alt" id="later">Later →</button></div></div><p>Use ↑ / ↓ to reorder bills. At the edge, an arrow moves the bill to the other paycheck.</p><div class="mobile-tabs" id="mobileTabs" aria-label="Choose paycheck"><button type="button" id="tab0" class="active">Paycheck 1</button><button type="button" id="tab1" class="alt">Paycheck 2</button></div><div id="board"></div>
+<section class="three-paycheck" id="threePaycheckBox" aria-live="polite" hidden>
+  <div class="three-top"><span class="three-eyebrow"><span class="three-dot"></span> PAYDAY INSIGHTS</span><span id="threeStatus" class="three-pill">UPCOMING</span></div>
+  <div class="three-main"><div class="three-icon" aria-hidden="true">✦</div><div><div class="three-kicker">YOUR NEXT THREE-PAYCHECK MONTH</div><h2 id="threeHeadline">Calculating…</h2><p id="threeSubtitle">Based on your biweekly payday schedule</p></div></div>
+  <div class="three-payday-row" id="threePaydayRow"></div>
+  <div class="three-footer"><div class="three-footer-note"><span aria-hidden="true">ⓘ</span> This is an extra payday, not necessarily extra spending money.</div><details class="three-details"><summary>12-month outlook <span class="three-chevron">⌄</span></summary><div id="threeMonths" class="three-months"></div></details></div>
+</section>
+<div class="board-heading"><h2>Next 2 paychecks</h2><div class="calendar-nav"><button class="alt" id="earlier">← Earlier</button><button class="alt" id="later">Later →</button></div></div><p>Use ↑ / ↓ to reorder bills. At the edge, an arrow moves the bill to the other paycheck.</p><div class="mobile-tabs" id="mobileTabs" aria-label="Choose paycheck"><button type="button" id="tab0" class="active">Paycheck 1</button><button type="button" id="tab1" class="alt">Paycheck 2</button></div><div id="board"></div>
 <details class="panel collapsible" id="manageSection"><summary>🗂 Manage bills & backups <span class="hint">Tap to expand</span></summary><div class="section-content"><div id="manage"></div><div class="fields"><label>Import file (JSON backup or CSV bill list)<input id="importfile" type="file" accept=".json,.csv,application/json,text/csv"></label><label>Import behavior<select id="importmode"><option value="merge">Merge with existing bills (skip duplicates)</option><option value="replace">Replace entire budget</option></select></label></div>
 <p><button id="import" type="button">Import bills</button> <button id="export" class="alt">Export backup</button> <button id="reset" class="danger">Clear all bills</button></p>
 <p class="muted">CSV headers: name, amount, day, repeat, first (optional). JSON backups restore paycheck assignments and paid status when replacing. Export a backup before replacing.</p></div></details></main>
@@ -73,7 +109,46 @@ function dates(){if(!s.payday)return [];let base=dt(s.payday),arr=[];for(let i=-
 function occurrences(from,to){let a=[];for(const b of s.bills){let start=new Date(from.getFullYear(),from.getMonth()-1,1,12);if(b.repeat==='monthly'){for(let i=0;i<20;i++){let m=new Date(start.getFullYear(),start.getMonth()+i,1,12),d=new Date(m.getFullYear(),m.getMonth(),Math.min(b.day,new Date(m.getFullYear(),m.getMonth()+1,0).getDate()),12);if(d>=from&&d<=to&&(!b.first||d>=dt(b.first)))a.push({b,d,k:b.id+'@'+iso(d)})}}else if(b.first){for(let i=0;i<30;i++){let base=dt(b.first),m=new Date(base.getFullYear(),base.getMonth()+(b.repeat==='yearly'?12*i:b.repeat==='6months'?6*i:0),1,12),d=new Date(m.getFullYear(),m.getMonth(),Math.min(base.getDate(),new Date(m.getFullYear(),m.getMonth()+1,0).getDate()),12);if(d>=from&&d<=to)a.push({b,d,k:b.id+'@'+iso(d)});if(b.repeat==='once')break}}}return a}
 const occurrenceAmount=x=>x.b.amountType==='variable'?(Object.prototype.hasOwnProperty.call(s.occurrenceAmounts,x.k)?s.occurrenceAmounts[x.k]:null):x.b.amount;
 function clearForm(){editing=null;for(let id of ['billname','amount','day','first'])$(id).value='';$('repeat').value='monthly';$('amountType').value='fixed';$('add').textContent='+ Add bill';$('cancel').hidden=true}
+function renderThreePaycheckDetector(){
+ const box=$('threePaycheckBox'), headline=$('threeHeadline'),subtitle=$('threeSubtitle'),row=$('threePaydayRow'),months=$('threeMonths'),status=$('threeStatus');
+ if(!s.payday){box.hidden=true;return}
+ box.hidden=false;
+ const today=new Date();today.setHours(12,0,0,0);
+ const start=new Date(today.getFullYear(),today.getMonth(),1,12);
+ const calendar=dates();
+ const monthly=[];
+ for(let n=0;n<12;n++){
+  const d=new Date(start.getFullYear(),start.getMonth()+n,1,12);
+  const paydays=calendar.filter(p=>p.getFullYear()===d.getFullYear()&&p.getMonth()===d.getMonth());
+  monthly.push({date:d,count:paydays.length,paydays});
+ }
+ months.replaceChildren();row.replaceChildren();
+ if(s.freq!=='14'){
+  status.textContent='BIWEEKLY ONLY';headline.textContent='Switch to biweekly pay';
+  subtitle.textContent='This feature detects months with three paydays when your pay frequency is Every 2 weeks.';
+  return;
+ }
+ for(const m of monthly){
+  const cell=document.createElement('div');cell.className='three-month'+(m.count===3?' special':'');
+  const name=document.createElement('b');name.textContent=m.date.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+  const detail=document.createElement('small');detail.textContent=m.count+' paychecks'+(m.count===3?' ✦':'');
+  cell.append(name,detail);months.append(cell);
+ }
+ const next=monthly.find(m=>m.count===3);
+ if(!next){status.textContent='NO UPCOMING MONTH';headline.textContent='No three-paycheck month soon';subtitle.textContent='None found within the next 12 months.';return}
+ const label=next.date.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+ status.textContent=next.date.getMonth()===today.getMonth()&&next.date.getFullYear()===today.getFullYear()?'THIS MONTH':'COMING UP';
+ headline.textContent=label;
+ subtitle.textContent='Three paydays in one calendar month';
+ next.paydays.forEach((date,i)=>{
+  const card=document.createElement('div');card.className='three-date'+(i===2?' third':'');
+  const tag=document.createElement('span');tag.className='three-label';tag.textContent=i===2?'✦ THIRD PAYCHECK':'PAYCHECK '+(i+1);
+  const day=document.createElement('span');day.className='three-day';day.textContent=date.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  card.append(tag,day);row.append(card);
+ });
+}
 function render(){
+renderThreePaycheckDetector();
 $('payday').value=s.payday;$('income').value=s.income;$('freq').value=s.freq;
 let manage=$('manage');manage.replaceChildren();for(let b of s.bills){let r=document.createElement('div'),name=document.createElement('span');name.textContent=b.name+' · '+(b.amountType==='variable'?'Variable':'Fixed '+money(b.amount))+' · '+b.repeat;let e=document.createElement('button');e.className='alt';e.textContent='Edit';e.onclick=()=>{editing=b.id;$('billname').value=b.name;$('amount').value=b.amount??'';$('day').value=b.day;$('repeat').value=b.repeat;$('amountType').value=b.amountType||'fixed';$('first').value=b.first||'';$('add').textContent='Save changes';$('cancel').hidden=false;$('addSection').open=true;$('addSection').scrollIntoView({behavior:'smooth',block:'start'})};let del=document.createElement('button');del.className='danger';del.textContent='Delete';del.onclick=()=>{s.bills=s.bills.filter(x=>x.id!==b.id);save();render()};let actions=document.createElement('span');actions.append(e,' ',del);r.append(name,actions);manage.append(r)}
 let board=$('board');board.replaceChildren();let pays=dates();if(!pays.length){let p=document.createElement('div');p.className='panel';p.textContent='Add bills now, then enter your payday to display the two paycheck columns.';board.append(p);return}
