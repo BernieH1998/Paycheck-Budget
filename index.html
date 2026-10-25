@@ -429,6 +429,16 @@ main{max-width:1100px!important}
 .backup-body{padding:12px 15px;border-top:1px solid #34506c}
 @media(max-width:640px){.bill-management-table thead{display:none}.bill-management-table,.bill-management-table tbody,.bill-management-table tr{display:block}.bill-management-table tr{display:grid;grid-template-columns:1fr auto;gap:4px 8px;padding:10px;border-bottom:1px solid #304660}.bill-management-table tr:last-child{border-bottom:0}.bill-management-table td{border:0;padding:2px 0}.bill-table-name{grid-column:1;grid-row:1;min-width:0}.bill-management-table td[data-label="Amount"]{grid-column:2;grid-row:1;text-align:right;font-weight:700;align-self:center}.bill-management-table td[data-label="Frequency"]{grid-column:1;grid-row:2;padding-left:40px;color:#aac1dc}.bill-management-table td[data-label="Category"]{grid-column:1;grid-row:3;padding-left:40px}.bill-actions{grid-column:2;grid-row:2 / span 2;align-self:end}.bill-actions button{min-height:36px}.bill-table-toolbar label{min-width:125px}.bill-search-label{flex-basis:100%!important}.backup-body{padding:10px}}
 
+
+/* Manage bills pagination */
+.bill-pagination{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:11px 0 4px;flex-wrap:wrap}
+.bill-pagination-count{font-size:12px;color:#abc3df}
+.bill-pagination-controls{display:flex;align-items:center;gap:6px;margin-left:auto}
+.bill-pagination-controls button{min-width:34px;min-height:36px;padding:6px 10px;border:1px solid #345477;border-radius:7px;background:#182c46;color:#dceaff;cursor:pointer}
+.bill-pagination-controls button[aria-current="page"]{background:#1254ce;border-color:#2875ff;color:white;font-weight:700}
+.bill-pagination-controls button:disabled{opacity:.35;cursor:not-allowed}
+@media(max-width:640px){.bill-pagination{gap:8px}.bill-pagination-count{font-size:11px}.bill-pagination-controls button{min-width:35px;min-height:40px}}
+
 /* Distinct category colors — badges and matching bill icons */
 .bill-category-badge,.bill-category-icon{--cat-bg:#173e6d;--cat-fg:#8dc8ff;--cat-border:#326ca6;background:var(--cat-bg)!important;color:var(--cat-fg)!important;border:1px solid var(--cat-border)!important}
 [data-category="Credit Card"]{--cat-bg:#173d70;--cat-fg:#93c5fd;--cat-border:#3666a6}
@@ -457,6 +467,14 @@ main{max-width:1100px!important}
  #paychecksSection #board .pay-tools button{font-size:9px!important;padding:4px 5px!important;min-height:28px!important;flex:0 1 auto!important}
  #paychecksSection #board .bulk-check{width:14px!important;height:14px!important;flex-basis:14px!important;margin-right:2px!important}
 }
+
+/* v1.36: paid bill styling matching the original dark-green cards */
+#board .tile.paid{background:#0d4027!important;border:1px solid #24794a!important;color:#e5f6eb!important;opacity:1!important}
+#board .tile.paid strong,#board .tile.paid b{color:#e5f6eb!important}
+#board .tile.paid small,#board .tile.paid .tile-due{color:#9edab3!important}
+#board .tile.paid .tile-chevron{color:#b7e4c5!important}
+#board .tile.paid button.alt{background:#276348!important;color:#fff!important}
+#board .tile.paid button:not(.alt){background:#276348!important;color:#fff!important}
 </style><main class="card-grid-app"><h1>Paycheck Budget <small style="font-size:11px">v1.33 TWO-COLUMN MOBILE EXPERIMENT</small></h1>
 <details class="panel collapsible" id="setupSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9l2.1 2.1m10 10 2.1 2.1m0-14.2L17 7m-10 10-2.1 2.1"/></svg></span><span class="card-copy"><strong>Paycheck setup</strong><span class="card-description">Set payday, income and frequency</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="fields"><label>Next payday<input id="payday" type="date"></label><label>Take-home per paycheck ($)<input id="income" type="number" step=".01" placeholder="Optional"></label><label>Pay frequency<select id="freq"><option value="14">Every 2 weeks</option><option value="7">Weekly</option><option value="month">Monthly</option></select></label></div></div></details>
 <details class="panel collapsible" id="addSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></span><span class="card-copy"><strong>Add a bill</strong><span class="card-description">Create a bill or change its due date</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="fields"><label>Bill name<input id="billname" placeholder="e.g. Rent"></label><label>Amount ($)<input id="amount" type="number" step=".01" placeholder="Optional"></label><label>Due day (1–31)<input id="day" type="number" min="1" max="31" placeholder="e.g. 15"></label><label>Amount behavior<select id="amountType"><option value="fixed">Fixed — carry amount forward</option><option value="variable">Variable — enter each occurrence</option></select></label><label>Repeats<select id="repeat"><option value="monthly">Monthly</option><option value="once">One time</option><option value="6months">Every 6 months</option><option value="yearly">Yearly</option></select></label><label>First due date<input id="first" type="date"></label></div><p><button type="button" id="add">+ Add bill</button> <button type="button" class="alt" id="cancel" hidden>Cancel edit</button></p><div class="banner" id="notice" role="status"></div></div></details>
@@ -478,7 +496,7 @@ main{max-width:1100px!important}
 
 
 
-<details class="panel collapsible" id="manageSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/></svg></span><span class="card-copy"><strong>Manage bills & backups</strong><span class="card-description">Edit, export or import your data</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="bill-table-toolbar"><label class="bill-search-label">Search bills<input id="manageSearch" type="search" placeholder="Search by bill name" autocomplete="off"></label><label>Category<select id="manageCategory"><option value="all">All categories</option><option value="Credit Card">Credit cards</option><option value="Auto">Auto</option><option value="Internet">Internet</option><option value="Music">Music</option><option value="Student Loan">Student loan</option><option value="Utility">Utilities</option><option value="Housing">Housing</option></select></label></div><div id="manage" class="bill-table-wrap"></div><details class="backup-subsection"><summary>Import, export &amp; backups <span class="backup-chevron">⌄</span></summary><div class="backup-body"><div class="fields"><label>Import file (JSON backup or CSV bill list)<input id="importfile" type="file" accept=".json,.csv,application/json,text/csv"></label><label>Import behavior<select id="importmode"><option value="merge">Merge with existing bills (skip duplicates)</option><option value="replace">Replace entire budget</option></select></label></div>
+<details class="panel collapsible" id="manageSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/></svg></span><span class="card-copy"><strong>Manage bills & backups</strong><span class="card-description">Edit, export or import your data</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="bill-table-toolbar"><label class="bill-search-label">Search bills<input id="manageSearch" type="search" placeholder="Search by bill name" autocomplete="off"></label><label>Category<select id="manageCategory"><option value="all">All categories</option><option value="Credit Card">Credit cards</option><option value="Auto">Auto</option><option value="Internet">Internet</option><option value="Music">Music</option><option value="Student Loan">Student loan</option><option value="Utility">Utilities</option><option value="Housing">Housing</option></select></label></div><div id="manage" class="bill-table-wrap"></div><nav id="managePagination" class="bill-pagination" aria-label="Manage bills pages"></nav><details class="backup-subsection"><summary>Import, export &amp; backups <span class="backup-chevron">⌄</span></summary><div class="backup-body"><div class="fields"><label>Import file (JSON backup or CSV bill list)<input id="importfile" type="file" accept=".json,.csv,application/json,text/csv"></label><label>Import behavior<select id="importmode"><option value="merge">Merge with existing bills (skip duplicates)</option><option value="replace">Replace entire budget</option></select></label></div>
 <p><button id="import" type="button">Import bills</button> <button id="export" class="alt">Export backup</button> <button id="reset" class="danger">Clear all bills</button></p>
 <p class="muted">Your budget is stored on this device. Export backups regularly. CSV headers: name, amount, day, repeat, first (optional). JSON backups restore paycheck assignments and paid status when replacing. Export a backup before replacing.</p></div></details></div></details></main>
 <script>
@@ -671,14 +689,18 @@ const billIcons={
  'Housing':'<path d="m2 11 10-8 10 8M5 10v11h14V10M10 21v-7h4v7"/>'
 };
 function billCategory(b){const n=(b.name||'').toLowerCase();if(/insurance/.test(n))return 'Auto';if(/verizon/.test(n))return 'Internet';if(/spotify/.test(n))return 'Music';if(/student.loan/.test(n))return 'Student Loan';if(/pseg/.test(n))return 'Utility';if(/^rent$/.test(n))return 'Housing';return 'Credit Card'}
+let managePage=1;
+const managePageSize=8;
 function renderBillManagement(){
  const host=$('manage');if(!host)return;host.replaceChildren();
  const query=($('manageSearch')?.value||'').trim().toLowerCase(),category=$('manageCategory')?.value||'all';
  const bills=s.bills.filter(b=>(!query||b.name.toLowerCase().includes(query))&&(category==='all'||billCategory(b)===category));
+ const totalPages=Math.max(1,Math.ceil(bills.length/managePageSize));managePage=Math.max(1,Math.min(managePage,totalPages));
+ const visibleBills=bills.slice((managePage-1)*managePageSize,managePage*managePageSize);
  const table=document.createElement('table');table.className='bill-management-table';
  table.innerHTML='<thead><tr><th>Bill</th><th>Amount</th><th>Frequency</th><th>Category</th><th>Actions</th></tr></thead>';
  const tbody=document.createElement('tbody');
- for(const b of bills){const tr=document.createElement('tr'),cat=billCategory(b);
+ for(const b of visibleBills){const tr=document.createElement('tr'),cat=billCategory(b);
  const name=document.createElement('td');name.className='bill-table-name';const icon=document.createElement('span');icon.className='bill-category-icon';icon.dataset.category=cat;icon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+billIcons[cat]+'</svg>';const text=document.createElement('strong');text.textContent=b.name;name.append(icon,text);
  const amt=document.createElement('td');amt.dataset.label='Amount';amt.textContent=b.amountType==='variable'?'Variable':b.amount==null||b.amount===''?'TBD':money(b.amount);
  const repeat=document.createElement('td');repeat.dataset.label='Frequency';repeat.textContent=b.repeat;
@@ -686,6 +708,17 @@ function renderBillManagement(){
  const actions=document.createElement('td');actions.className='bill-actions';const e=document.createElement('button');e.className='alt';e.type='button';e.textContent='Edit';e.onclick=()=>{editing=b.id;$('billname').value=b.name;$('amount').value=b.amount??'';$('day').value=b.day;$('repeat').value=b.repeat;$('amountType').value=b.amountType||'fixed';$('first').value=b.first||'';$('add').textContent='Save changes';$('cancel').hidden=false;$('addSection').open=true;$('addSection').scrollIntoView({behavior:'smooth',block:'start'})};const del=document.createElement('button');del.className='danger';del.type='button';del.textContent='Delete';del.onclick=()=>{if(!confirm('Delete '+b.name+'?'))return;s.bills=s.bills.filter(x=>x.id!==b.id);save();render()};actions.append(e,del);
  tr.append(name,amt,repeat,catTd,actions);tbody.append(tr)
  }table.append(tbody);host.append(table);if(!bills.length){const empty=document.createElement('p');empty.className='finance-note';empty.textContent=s.bills.length?'No bills match your search.':'No bills added yet.';host.append(empty)}
+ const pager=$('managePagination');pager.replaceChildren();
+ const count=document.createElement('span');count.className='bill-pagination-count';
+ count.textContent=bills.length?'Showing '+((managePage-1)*managePageSize+1)+'–'+Math.min(managePage*managePageSize,bills.length)+' of '+bills.length+' bills':'Showing 0 bills';pager.append(count);
+ if(totalPages>1){
+  const controls=document.createElement('div');controls.className='bill-pagination-controls';
+  const addButton=(label,page,disabled,current=false)=>{const button=document.createElement('button');button.type='button';button.textContent=label;button.disabled=disabled;if(current)button.setAttribute('aria-current','page');button.setAttribute('aria-label',label==='‹'?'Previous page':label==='›'?'Next page':'Page '+page);button.onclick=()=>{managePage=page;renderBillManagement()};controls.append(button)};
+  addButton('‹',managePage-1,managePage===1);
+  for(let page=1;page<=totalPages;page++)addButton(String(page),page,false,page===managePage);
+  addButton('›',managePage+1,managePage===totalPages);
+  pager.append(controls);
+ }
 }
 function render(){
 renderThreePaycheckDetector();
@@ -900,7 +933,7 @@ function installHorizontalCalendars(){
 }
 installHorizontalCalendars();
 
-$('manageSearch').addEventListener('input',renderBillManagement);$('manageCategory').addEventListener('change',renderBillManagement);
+$('manageSearch').addEventListener('input',()=>{managePage=1;renderBillManagement()});$('manageCategory').addEventListener('change',()=>{managePage=1;renderBillManagement()});
 render();if(!s.payday)$('setupSection').open=true;
 })();
 </script><script>if('serviceWorker' in navigator && location.protocol==='https:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}</script></html>
