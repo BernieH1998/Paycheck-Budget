@@ -484,7 +484,31 @@ main{max-width:1100px!important}
 .cycle-indicator.previous::before{background:#f1b96a}
 .cycle-indicator.upcoming::before{background:#75b7f9}
 @media(max-width:680px){.cycle-indicator{font-size:10px;padding:7px 8px;margin:6px 0 8px}.board-heading .calendar-nav{flex-wrap:wrap}}
-</style><main class="card-grid-app"><h1>Paycheck Budget <small style="font-size:11px">v1.33 TWO-COLUMN MOBILE EXPERIMENT</small></h1>
+
+/* v1.38: persistent compact current-cycle summary; existing accordions stay intact. */
+.cycle-overview{width:100%;border:1px solid #355981;border-radius:14px;background:linear-gradient(145deg,#142940,#101e32);padding:15px 16px;box-shadow:0 2px 14px #0002;color:#eaf4ff}
+.cycle-overview h2{font-size:14px;font-weight:800;letter-spacing:.5px;margin:0 0 8px;text-transform:uppercase}
+.cycle-overview-status{display:flex;align-items:center;gap:7px;color:#80e6a8;font-size:12px;font-weight:700;margin-bottom:3px}
+.cycle-overview-status::before{content:'';width:8px;height:8px;flex:none;border-radius:50%;background:#59d890}
+.cycle-overview-dates{font-size:11px;color:#b0c5e1;margin:0 0 12px 15px}
+.cycle-overview-amounts{background:#1b304a;border:1px solid #294662;border-radius:10px;padding:9px 11px;display:grid;gap:7px}
+.cycle-overview-line{display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:13px}
+.cycle-overview-line strong{font-size:14px;white-space:nowrap}
+.cycle-overview-line.remaining{padding-top:7px;border-top:1px solid #35516d;font-weight:750}
+.cycle-overview-line.remaining strong{font-size:19px;color:#79e5a4}
+.cycle-overview-line.remaining strong.negative{color:#ff9b9b}
+.cycle-overview-progress{margin-top:12px}
+.cycle-overview-progress-text{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:7px}
+.cycle-overview-progress-track{height:9px;background:#2a405e;border-radius:100px;overflow:hidden}
+.cycle-overview-progress-fill{height:100%;background:#53ce8e;border-radius:100px;width:0;transition:width .2s ease}
+.cycle-overview-note{margin:8px 0 0;color:#a9bfdc;font-size:10px;line-height:1.4}
+@media(max-width:700px){.card-grid-app{gap:7px!important}.cycle-overview{padding:13px 14px}.cycle-overview h2{font-size:13px}.card-grid-app>details>summary,.card-grid-app>details[open]>summary{min-height:72px!important}}
+</style><main class="card-grid-app"><h1>Paycheck Budget <small style="font-size:11px">v1.38</small></h1>
+<section class="cycle-overview" id="cycleOverview" aria-label="Current paycheck summary" aria-live="polite">
+<h2>Paycheck Summary</h2><div class="cycle-overview-status">Current Pay Cycle</div><div class="cycle-overview-dates" id="overviewDates">Enter your payday to get started</div>
+<div class="cycle-overview-amounts"><div class="cycle-overview-line"><span>Total Income</span><strong id="overviewIncome">—</strong></div><div class="cycle-overview-line"><span>Total Bills</span><strong id="overviewBills">—</strong></div><div class="cycle-overview-line remaining"><span>Remaining</span><strong id="overviewRemaining">—</strong></div></div>
+<div class="cycle-overview-progress"><div class="cycle-overview-progress-text"><span id="overviewPaid">Bills Paid · 0 of 0</span><strong id="overviewPercent">0%</strong></div><div class="cycle-overview-progress-track" role="progressbar" aria-label="Bills paid" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="overviewProgress"><div class="cycle-overview-progress-fill" id="overviewProgressFill"></div></div></div>
+<p class="cycle-overview-note" id="overviewNote" hidden></p></section>
 <details class="panel collapsible" id="setupSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9l2.1 2.1m10 10 2.1 2.1m0-14.2L17 7m-10 10-2.1 2.1"/></svg></span><span class="card-copy"><strong>Paycheck setup</strong><span class="card-description">Set payday, income and frequency</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="fields"><label>Next payday<input id="payday" type="date"></label><label>Take-home per paycheck ($)<input id="income" type="number" step=".01" placeholder="Optional"></label><label>Pay frequency<select id="freq"><option value="14">Every 2 weeks</option><option value="7">Weekly</option><option value="month">Monthly</option></select></label></div></div></details>
 <details class="panel collapsible" id="addSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></span><span class="card-copy"><strong>Add a bill</strong><span class="card-description">Create a bill or change its due date</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="fields"><label>Bill name<input id="billname" placeholder="e.g. Rent"></label><label>Amount ($)<input id="amount" type="number" step=".01" placeholder="Optional"></label><label>Due day (1–31)<input id="day" type="number" min="1" max="31" placeholder="e.g. 15"></label><label>Amount behavior<select id="amountType"><option value="fixed">Fixed — carry amount forward</option><option value="variable">Variable — enter each occurrence</option></select></label><label>Repeats<select id="repeat"><option value="monthly">Monthly</option><option value="once">One time</option><option value="6months">Every 6 months</option><option value="yearly">Yearly</option></select></label><label>First due date<input id="first" type="date"></label></div><p><button type="button" id="add">+ Add bill</button> <button type="button" class="alt" id="cancel" hidden>Cancel edit</button></p><div class="banner" id="notice" role="status"></div></div></details>
 <details class="compact-insights panel" id="insightsSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-13 4h3m3 0h3"/></svg></span><span class="card-copy"><strong>Payday insights</strong><span class="card-description">Explore upcoming paydays</span></span><span class="card-arrow" aria-hidden="true"></span></summary><section class="three-paycheck" id="threePaycheckBox" aria-live="polite" hidden>
@@ -729,7 +753,39 @@ function renderBillManagement(){
   pager.append(controls);
  }
 }
+
+function renderCycleOverview(){
+ const pays=dates();const today=new Date();today.setHours(12,0,0,0);
+ const dateText=$('overviewDates'),incomeText=$('overviewIncome'),billsText=$('overviewBills'),remainingText=$('overviewRemaining');
+ const paidText=$('overviewPaid'),percentText=$('overviewPercent'),fill=$('overviewProgressFill'),progress=$('overviewProgress'),note=$('overviewNote');
+ if(!pays.length){dateText.textContent='Set your payday in Paycheck Setup';incomeText.textContent='—';billsText.textContent='—';remainingText.textContent='—';paidText.textContent='Bills Paid · 0 of 0';percentText.textContent='0%';fill.style.width='0%';progress.setAttribute('aria-valuenow','0');note.hidden=true;return}
+ let anchor=pays.findIndex((p,i)=>p<=today&&pays[i+1]>today);if(anchor<0)anchor=pays.findIndex(p=>p>=today);anchor=Math.max(0,anchor);
+ const start=pays[anchor],next=pays[anchor+1]||plus(start,Number(s.freq)||14),end=pays[anchor+2]||plus(next,Number(s.freq)||14);
+ dateText.textContent=fmt(start)+' – '+fmt(plus(end,-1));
+ const all=occurrences(plus(start,-35),plus(end,35));
+ let totalBills=0,totalPaid=0,missing=0,extra=0;
+ const seen=new Set();
+ for(const [begin,finish] of [[start,next],[next,end]]){
+  const pid=iso(begin);extra+=Number(s.bonuses[pid]||0);
+  for(const x of all){const assigned=s.assign[x.k];if(!(assigned?assigned===pid:x.d>=begin&&x.d<finish)||seen.has(x.k))continue;
+   seen.add(x.k);const amount=occurrenceAmount(x);if(amount===null||amount===''||!Number.isFinite(Number(amount)))missing++;
+   else totalBills+=Number(amount);
+   if(s.paid[x.k])totalPaid++;
+  }
+ }
+ const totalIncome=s.income===''?null:Number(s.income)*2+extra;
+ incomeText.textContent=totalIncome===null?'Not set':money(totalIncome);
+ billsText.textContent=money(totalBills);
+ const remaining=totalIncome===null?null:totalIncome-totalBills;
+ remainingText.textContent=remaining===null?'—':money(remaining);
+ remainingText.classList.toggle('negative',remaining!==null&&remaining<0);
+ paidText.textContent='Bills Paid · '+totalPaid+' of '+seen.size;
+ const percent=seen.size?Math.round(totalPaid/seen.size*100):0;
+ percentText.textContent=percent+'%';fill.style.width=percent+'%';progress.setAttribute('aria-valuenow',String(percent));
+ note.hidden=missing===0;note.textContent=missing+' bill'+(missing===1?' has':'s have')+' no amount entered and '+(missing===1?'is':'are')+' excluded from totals.';
+}
 function render(){
+renderCycleOverview();
 renderThreePaycheckDetector();
 $('payday').value=s.payday;$('income').value=s.income;$('freq').value=s.freq;
 renderBillManagement();
