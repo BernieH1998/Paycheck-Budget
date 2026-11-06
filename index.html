@@ -503,23 +503,73 @@ main{max-width:1100px!important}
 .cycle-overview-progress-fill{height:100%;background:#53ce8e;border-radius:100px;width:0;transition:width .2s ease}
 .cycle-overview-note{margin:8px 0 0;color:#a9bfdc;font-size:10px;line-height:1.4}
 @media(max-width:700px){.card-grid-app{gap:7px!important}.cycle-overview{padding:13px 14px}.cycle-overview h2{font-size:13px}.card-grid-app>details>summary,.card-grid-app>details[open]>summary{min-height:72px!important}}
-</style><main class="card-grid-app"><h1>Paycheck Budget <small style="font-size:11px">v1.38</small></h1>
-<section class="cycle-overview" id="cycleOverview" aria-label="Current paycheck summary" aria-live="polite">
-<h2>Paycheck Summary</h2><div class="cycle-overview-status">Current Pay Cycle</div><div class="cycle-overview-dates" id="overviewDates">Enter your payday to get started</div>
+
+/* v1.39: one centered accordion chevron; preserve all other styling. */
+.card-grid-app>details>summary::before,.card-grid-app>details>summary::after{content:none!important;display:none!important}
+.card-grid-app>details>summary{position:relative!important;padding-right:42px!important}
+.card-grid-app>details>summary>.card-arrow{position:absolute!important;right:17px!important;top:50%!important;left:auto!important;display:block!important;width:9px!important;height:9px!important;margin:0!important;flex:none!important;transform:translateY(-65%) rotate(45deg)!important}
+.card-grid-app>details[open]>summary>.card-arrow{top:50%!important;margin:0!important;transform:translateY(-20%) rotate(225deg)!important}
+
+/* v1.41: budget lock — small read-only indicator, mobile-friendly lock control. */
+.budget-lock-toast{position:fixed;z-index:20000;bottom:max(18px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(440px,calc(100vw - 24px));padding:10px 13px;border-radius:10px;background:#21364e;border:1px solid #78a9d0;color:#f1f7ff;box-shadow:0 12px 38px #0008;font-size:12px;line-height:1.4;text-align:center}
+.budget-lock-toast[hidden],.locked-settings-note[hidden]{display:none!important}
+.locked-settings-note{font-size:12px;color:#a7daca;background:#142c2b;border:1px solid #356f61;padding:10px;border-radius:9px;margin:12px 0 3px}
+
+.budget-lock-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;margin:0 0 10px;border-radius:11px;background:#192c42;border:1px solid #395675}
+.budget-lock-bar[hidden]{display:none!important}
+.budget-lock-copy{display:flex;flex-direction:column;min-width:0;gap:2px}
+.budget-lock-copy strong{color:#e3efff;font-size:12px;line-height:1.3}
+.budget-lock-copy small{font-size:10px;color:#a8bfdc;line-height:1.35}
+.budget-lock-button{flex:none;background:#355b87!important;border:1px solid #5785ba!important;color:#eef6ff!important;padding:8px 12px!important;font-size:12px!important;font-weight:750;min-height:36px}
+.budget-lock-bar.is-locked{border-color:#427e6e;background:#132b2e}
+.budget-lock-bar.is-locked .budget-lock-copy strong{color:#a1efce}
+.budget-lock-bar.is-locked .budget-lock-button{background:#24564b!important;border-color:#3d977c!important}
+.budget-lock-pill{display:inline-flex;vertical-align:middle;align-items:center;margin-left:6px;padding:3px 6px;border-radius:6px;border:1px solid #42866c;color:#a2f0c5;background:#14382c;font-size:10px;font-weight:700}
+#board .panel.paycheck-locked{border-color:#407a6a!important}
+#board .panel.paycheck-locked .tile{cursor:default!important}
+#board .panel.paycheck-locked .tile button:disabled,#board .panel.paycheck-locked .pay-tools button:disabled{opacity:.5!important;cursor:not-allowed!important}
+@media(max-width:680px){.budget-lock-bar{padding:8px 9px;gap:6px;margin-bottom:8px}.budget-lock-button{padding:7px 9px!important;font-size:10px!important}.budget-lock-copy strong{font-size:10px}.budget-lock-copy small{font-size:9px}.budget-lock-pill{font-size:8px;padding:2px 4px;margin-left:3px}}
+
+/* v1.40: preserve original summary front; flip to full Payday Insights on reverse. */
+.summary-flip-shell{width:100%;height:282px;perspective:1200px;position:relative}
+.summary-flip-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+.summary-flip-shell.is-flipped .summary-flip-inner{transform:rotateY(180deg)}
+.summary-flip-shell .flip-face{position:absolute!important;inset:0;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;box-sizing:border-box}
+.summary-flip-shell .flip-front{cursor:pointer;touch-action:manipulation}
+.summary-flip-shell .flip-front:focus-visible{outline:2px solid #69baff;outline-offset:3px}
+.summary-flip-shell .flip-back{transform:rotateY(180deg);display:flex;flex-direction:column;padding:13px 14px}
+.flip-hint{float:right;color:#9cc5f3;font-size:10px;font-weight:500;text-transform:none;letter-spacing:0}
+.flip-back-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+.flip-back-header h2{margin:0}
+.flip-return{padding:6px 9px!important;font-size:11px!important;white-space:nowrap}
+.flip-back-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.flip-back .three-paycheck{margin:0!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;width:100%;max-width:none}
+.flip-back .three-paycheck:before{display:none!important}
+.flip-back .three-main{padding:6px 0!important}
+.flip-back .three-payday-row{gap:5px!important}
+@media(max-width:700px){.summary-flip-shell{height:278px}.flip-hint{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.summary-flip-inner{transition:none}}
+</style><div class="budget-lock-toast" id="budgetLockToast" role="status" aria-live="polite" hidden></div><main class="card-grid-app"><h1>Paycheck Budget <small style="font-size:11px">v1.41</small></h1>
+<div class="summary-flip-shell" id="summaryFlipShell"><div class="summary-flip-inner"><section class="cycle-overview flip-face flip-front" id="cycleOverview" aria-label="Current paycheck summary" aria-live="polite" role="button" tabindex="0" aria-pressed="false" title="Tap to see payday insights">
+<h2>Paycheck Summary <span class="flip-hint">Tap to flip ↻</span></h2><div class="cycle-overview-status">Current Pay Cycle</div><div class="cycle-overview-dates" id="overviewDates">Enter your payday to get started</div>
 <div class="cycle-overview-amounts"><div class="cycle-overview-line"><span>Total Income</span><strong id="overviewIncome">—</strong></div><div class="cycle-overview-line"><span>Total Bills</span><strong id="overviewBills">—</strong></div><div class="cycle-overview-line remaining"><span>Remaining</span><strong id="overviewRemaining">—</strong></div></div>
 <div class="cycle-overview-progress"><div class="cycle-overview-progress-text"><span id="overviewPaid">Bills Paid · 0 of 0</span><strong id="overviewPercent">0%</strong></div><div class="cycle-overview-progress-track" role="progressbar" aria-label="Bills paid" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="overviewProgress"><div class="cycle-overview-progress-fill" id="overviewProgressFill"></div></div></div>
 <p class="cycle-overview-note" id="overviewNote" hidden></p></section>
-<details class="panel collapsible" id="setupSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9l2.1 2.1m10 10 2.1 2.1m0-14.2L17 7m-10 10-2.1 2.1"/></svg></span><span class="card-copy"><strong>Paycheck setup</strong><span class="card-description">Set payday, income and frequency</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="fields"><label>Next payday<input id="payday" type="date"></label><label>Take-home per paycheck ($)<input id="income" type="number" step=".01" placeholder="Optional"></label><label>Pay frequency<select id="freq"><option value="14">Every 2 weeks</option><option value="7">Weekly</option><option value="month">Monthly</option></select></label></div></div></details>
-<details class="panel collapsible" id="addSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></span><span class="card-copy"><strong>Add a bill</strong><span class="card-description">Create a bill or change its due date</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="fields"><label>Bill name<input id="billname" placeholder="e.g. Rent"></label><label>Amount ($)<input id="amount" type="number" step=".01" placeholder="Optional"></label><label>Due day (1–31)<input id="day" type="number" min="1" max="31" placeholder="e.g. 15"></label><label>Amount behavior<select id="amountType"><option value="fixed">Fixed — carry amount forward</option><option value="variable">Variable — enter each occurrence</option></select></label><label>Repeats<select id="repeat"><option value="monthly">Monthly</option><option value="once">One time</option><option value="6months">Every 6 months</option><option value="yearly">Yearly</option></select></label><label>First due date<input id="first" type="date"></label></div><p><button type="button" id="add">+ Add bill</button> <button type="button" class="alt" id="cancel" hidden>Cancel edit</button></p><div class="banner" id="notice" role="status"></div></div></details>
-<details class="compact-insights panel" id="insightsSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-13 4h3m3 0h3"/></svg></span><span class="card-copy"><strong>Payday insights</strong><span class="card-description">Explore upcoming paydays</span></span><span class="card-arrow" aria-hidden="true"></span></summary><section class="three-paycheck" id="threePaycheckBox" aria-live="polite" hidden>
+<section class="cycle-overview flip-face flip-back" aria-label="Payday insights">
+<div class="flip-back-header"><h2>Payday Insights</h2><button type="button" class="flip-return" id="flipReturn" aria-label="Flip back to paycheck summary">↶ Summary</button></div>
+<div class="flip-back-scroll"><section class="three-paycheck" id="threePaycheckBox" aria-live="polite" hidden>
   <div class="three-top"><span id="threeStatus" class="three-pill">UPCOMING</span></div>
   <div class="three-main"><div><div class="three-kicker">NEXT THREE-PAYCHECK MONTH</div><h2 id="threeHeadline">Calculating…</h2><p id="threeSubtitle">Based on your biweekly payday schedule</p></div></div>
   <div class="three-payday-row" id="threePaydayRow"></div>
   <div class="three-footer"><div class="three-footer-note"><span aria-hidden="true">ⓘ</span> This is an extra payday, not necessarily extra spending money.</div><details class="three-details"><summary>12-month outlook <span class="three-chevron">⌄</span></summary><div id="threeMonths" class="three-months"></div></details></div>
-</section></details>
-<details class="panel paycheck-accordion" id="paychecksSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="15" rx="3"/><path d="M3 9V6a3 3 0 0 1 3-3h12m-3 11h6"/><circle cx="16" cy="14" r="1"/></svg></span><span class="card-copy"><strong>Paychecks & bills</strong><span class="card-description">Manage bills for each paycheck</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="paycheck-accordion-body"><section class="panel finance-panel" id="forecastPanel"><div class="finance-head"><div><h2>Paycheck forecast</h2></div></div><div id="forecastStatus" role="status" aria-live="polite"></div><div id="forecastRows"></div><p class="finance-note">Based on scheduled bills; missing variable amounts are excluded.</p></section><div class="board-heading"><h2 id="paycheckBoardTitle">Both paychecks</h2><div class="calendar-nav"><button class="alt" id="backCurrent" hidden>↩ Today</button><button class="alt" id="earlier">← Earlier</button><button class="alt" id="later">Later →</button></div></div><div class="cycle-indicator" id="cycleIndicator" role="status" aria-live="polite"></div><div class="mobile-tabs" id="mobileTabs" aria-label="Choose paycheck"><button type="button" id="tab0" class="active">Paycheck 1</button><button type="button" id="tab1" class="alt">Paycheck 2</button></div>
+</section></div></section></div></div>
+<details class="panel paycheck-accordion" id="paychecksSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="15" rx="3"/><path d="M3 9V6a3 3 0 0 1 3-3h12m-3 11h6"/><circle cx="16" cy="14" r="1"/></svg></span><span class="card-copy"><strong>Paychecks & bills</strong><span class="card-description">Manage bills for each paycheck</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="paycheck-accordion-body"><section class="panel finance-panel" id="forecastPanel"><div class="finance-head"><div><h2>Paycheck forecast</h2></div></div><div id="forecastStatus" role="status" aria-live="polite"></div><div id="forecastRows"></div><p class="finance-note">Based on scheduled bills; missing variable amounts are excluded.</p></section><div class="board-heading"><h2 id="paycheckBoardTitle">Both paychecks</h2><div class="calendar-nav"><button class="alt" id="backCurrent" hidden>↩ Today</button><button class="alt" id="earlier">← Earlier</button><button class="alt" id="later">Later →</button></div></div><div class="cycle-indicator" id="cycleIndicator" role="status" aria-live="polite"></div>
+<div class="budget-lock-bar" id="budgetLockBar" hidden><div class="budget-lock-copy"><strong id="budgetLockStatus">Pay cycle is editable</strong><small id="budgetLockDescription">Lock these paychecks when you're done.</small></div><button type="button" id="budgetLockToggle" class="budget-lock-button">Lock pay cycle</button></div>
+<div class="mobile-tabs" id="mobileTabs" aria-label="Choose paycheck"><button type="button" id="tab0" class="active">Paycheck 1</button><button type="button" id="tab1" class="alt">Paycheck 2</button></div>
 <div id="board"></div></div></details>
 
+<details class="panel collapsible" id="setupSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9l2.1 2.1m10 10 2.1 2.1m0-14.2L17 7m-10 10-2.1 2.1"/></svg></span><span class="card-copy"><strong>Paycheck setup</strong><span class="card-description">Set payday, income and frequency</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="fields"><label>Next payday<input id="payday" type="date"></label><label>Take-home per paycheck ($)<input id="income" type="number" step=".01" placeholder="Optional"></label><label>Pay frequency<select id="freq"><option value="14">Every 2 weeks</option><option value="7">Weekly</option><option value="month">Monthly</option></select></label></div><p class="locked-settings-note" id="lockedSettingsNote" hidden>Paycheck setup is protected while any paychecks are locked. Unlock them before changing income or the pay schedule.</p></div></details>
+<details class="panel collapsible" id="addSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></span><span class="card-copy"><strong>Add a bill</strong><span class="card-description">Create a bill or change its due date</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="fields"><label>Bill name<input id="billname" placeholder="e.g. Rent"></label><label>Amount ($)<input id="amount" type="number" step=".01" placeholder="Optional"></label><label>Due day (1–31)<input id="day" type="number" min="1" max="31" placeholder="e.g. 15"></label><label>Amount behavior<select id="amountType"><option value="fixed">Fixed — carry amount forward</option><option value="variable">Variable — enter each occurrence</option></select></label><label>Repeats<select id="repeat"><option value="monthly">Monthly</option><option value="once">One time</option><option value="6months">Every 6 months</option><option value="yearly">Yearly</option></select></label><label>First due date<input id="first" type="date"></label></div><p><button type="button" id="add">+ Add bill</button> <button type="button" class="alt" id="cancel" hidden>Cancel edit</button></p><div class="banner" id="notice" role="status"></div></div></details>
 <details class="panel finance-panel" id="reportPanel"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V12m6 8V5m6 15v-8m4 8V8"/></svg></span><span class="card-copy"><strong>Monthly spending reports</strong><span class="card-description">Review your monthly expenses</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="finance-report"><div class="report-month-nav"><button type="button" class="alt" id="reportPrev" aria-label="Previous report month">←</button><label class="report-month-label">Month <input id="reportMonth" type="month" aria-label="Choose spending report month"></label><button type="button" class="alt" id="reportNext" aria-label="Next report month">→</button></div><div id="reportContent"></div>
 <div class="report-charts">
 <div class="chart-toggle" role="group" aria-label="Spending chart view"><button type="button" id="chartGraph" class="chart-active" aria-pressed="true">Graph</button><button type="button" id="chartPie" aria-pressed="false">Pie chart</button></div>
@@ -531,14 +581,20 @@ main{max-width:1100px!important}
 
 <details class="panel collapsible" id="manageSection"><summary><span class="card-icon"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/></svg></span><span class="card-copy"><strong>Manage bills & backups</strong><span class="card-description">Edit, export or import your data</span></span><span class="card-arrow" aria-hidden="true"></span></summary><div class="section-content"><div class="bill-table-toolbar"><label class="bill-search-label">Search bills<input id="manageSearch" type="search" placeholder="Search by bill name" autocomplete="off"></label><label>Category<select id="manageCategory"><option value="all">All categories</option><option value="Credit Card">Credit cards</option><option value="Auto">Auto</option><option value="Internet">Internet</option><option value="Music">Music</option><option value="Student Loan">Student loan</option><option value="Utility">Utilities</option><option value="Housing">Housing</option></select></label></div><div id="manage" class="bill-table-wrap"></div><nav id="managePagination" class="bill-pagination" aria-label="Manage bills pages"></nav><details class="backup-subsection"><summary>Import, export &amp; backups <span class="backup-chevron">⌄</span></summary><div class="backup-body"><div class="fields"><label>Import file (JSON backup or CSV bill list)<input id="importfile" type="file" accept=".json,.csv,application/json,text/csv"></label><label>Import behavior<select id="importmode"><option value="merge">Merge with existing bills (skip duplicates)</option><option value="replace">Replace entire budget</option></select></label></div>
 <p><button id="import" type="button">Import bills</button> <button id="export" class="alt">Export backup</button> <button id="reset" class="danger">Clear all bills</button></p>
-<p class="muted">Your budget is stored on this device. Export backups regularly. CSV headers: name, amount, day, repeat, first (optional). JSON backups restore paycheck assignments and paid status when replacing. Export a backup before replacing.</p></div></details></div></details></main>
+<p class="muted">Your budget is stored on this device. Export backups regularly. CSV headers: name, amount, day, repeat, first (optional). JSON backups restore paycheck assignments and paid status when replacing. Export a backup before replacing. Locked paychecks are included in JSON backups; unlock them before changing global paycheck setup or bill definitions that affect locked dates.</p></div></details></div></details></main>
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id),storage='paycheck-budget-pwa-v1';
+const flipShell=$('summaryFlipShell'),flipFront=$('cycleOverview'),flipReturn=$('flipReturn');
+function setSummaryFlip(flipped){flipShell.classList.toggle('is-flipped',flipped);flipFront.setAttribute('aria-pressed',String(flipped));flipFront.tabIndex=flipped?-1:0;flipReturn.tabIndex=flipped?0:-1;}
+flipFront.addEventListener('click',()=>setSummaryFlip(true));
+flipFront.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setSummaryFlip(true);flipReturn.focus();}});
+flipReturn.addEventListener('click',()=>setSummaryFlip(false));
+
 let selectedMonth=null,selectedPayday=null;
-let s={payday:'',income:'',freq:'14',bills:[],assign:{},paid:{},order:{},occurrenceAmounts:{},bonuses:{}},offset=0,editing=null,moving=null,mobileTab=0,expandedTile=null,bulkSelected=new Set();
+let s={payday:'',income:'',freq:'14',bills:[],assign:{},paid:{},order:{},occurrenceAmounts:{},bonuses:{},lockedPaychecks:{}},offset=0,editing=null,moving=null,mobileTab=0,expandedTile=null,bulkSelected=new Set();
 try{let old=JSON.parse(localStorage.getItem(storage));if(old&&Array.isArray(old.bills))s={...s,...old}}catch(e){}
-s.occurrenceAmounts=s.occurrenceAmounts||{};s.bonuses=s.bonuses||{};for(const b of s.bills){if(!b.amountType)b.amountType='fixed'};
+s.occurrenceAmounts=s.occurrenceAmounts||{};s.bonuses=s.bonuses||{};s.lockedPaychecks=(s.lockedPaychecks&&typeof s.lockedPaychecks==='object'&&!Array.isArray(s.lockedPaychecks))?s.lockedPaychecks:{};for(const b of s.bills){if(!b.amountType)b.amountType='fixed'};
 const save=()=>{try{localStorage.setItem(storage,JSON.stringify(s))}catch(e){notice('Browser storage unavailable; export a backup before closing.')}};
 const iso=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
 const dt=t=>{let [y,m,d]=t.split('-').map(Number);return new Date(y,m-1,d,12)};
@@ -547,9 +603,61 @@ const fmt=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'num
 const monthKey=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
 function navigateTo(date,individual=false){selectedMonth=monthKey(date);selectedPayday=individual?iso(date):null;offset=0;render();$('paychecksSection').open=true;$('paychecksSection').scrollIntoView({behavior:'smooth',block:'start'});}
 const money=n=>n===null||n===''?'TBD':Number(n).toLocaleString('en-US',{style:'currency',currency:'USD'});
-function notice(msg){$('notice').style.display='block';$('notice').textContent=msg}
+let toastTimeout=null;
+function notice(msg){
+ $('notice').style.display='block';$('notice').textContent=msg;
+ const toast=$('budgetLockToast');if(!toast)return;
+ toast.textContent=msg;toast.hidden=false;
+ if(toastTimeout)clearTimeout(toastTimeout);
+ toastTimeout=setTimeout(()=>{toast.hidden=true},4400);
+}
 function dates(){if(!s.payday)return [];let base=dt(s.payday),arr=[];for(let i=-50;i<65;i++){if(s.freq==='month'){let d=new Date(base.getFullYear(),base.getMonth()+i,1,12);d.setDate(Math.min(base.getDate(),new Date(d.getFullYear(),d.getMonth()+1,0).getDate()));arr.push(d)}else arr.push(plus(base,i*Number(s.freq)))}return arr}
-function occurrences(from,to){let a=[];for(const b of s.bills){let start=new Date(from.getFullYear(),from.getMonth()-1,1,12);if(b.repeat==='monthly'){for(let i=0;i<20;i++){let m=new Date(start.getFullYear(),start.getMonth()+i,1,12),d=new Date(m.getFullYear(),m.getMonth(),Math.min(b.day,new Date(m.getFullYear(),m.getMonth()+1,0).getDate()),12);if(d>=from&&d<=to&&(!b.first||d>=dt(b.first)))a.push({b,d,k:b.id+'@'+iso(d)})}}else if(b.first){for(let i=0;i<30;i++){let base=dt(b.first),m=new Date(base.getFullYear(),base.getMonth()+(b.repeat==='yearly'?12*i:b.repeat==='6months'?6*i:0),1,12),d=new Date(m.getFullYear(),m.getMonth(),Math.min(base.getDate(),new Date(m.getFullYear(),m.getMonth()+1,0).getDate()),12);if(d>=from&&d<=to)a.push({b,d,k:b.id+'@'+iso(d)});if(b.repeat==='once')break}}}return a}
+function occurrences(from,to,billList=s.bills){let a=[];for(const b of billList){let start=new Date(from.getFullYear(),from.getMonth()-1,1,12);if(b.repeat==='monthly'){for(let i=0;i<20;i++){let m=new Date(start.getFullYear(),start.getMonth()+i,1,12),d=new Date(m.getFullYear(),m.getMonth(),Math.min(b.day,new Date(m.getFullYear(),m.getMonth()+1,0).getDate()),12);if(d>=from&&d<=to&&(!b.first||d>=dt(b.first)))a.push({b,d,k:b.id+'@'+iso(d)})}}else if(b.first){for(let i=0;i<30;i++){let base=dt(b.first),m=new Date(base.getFullYear(),base.getMonth()+(b.repeat==='yearly'?12*i:b.repeat==='6months'?6*i:0),1,12),d=new Date(m.getFullYear(),m.getMonth(),Math.min(base.getDate(),new Date(m.getFullYear(),m.getMonth()+1,0).getDate()),12);if(d>=from&&d<=to)a.push({b,d,k:b.id+'@'+iso(d)});if(b.repeat==='once')break}}}return a}
+// Saved by payday date, so a lock never shifts when "Today" advances to a new cycle.
+const isPaycheckLocked=pid=>!!(pid&&Object.prototype.hasOwnProperty.call(s.lockedPaychecks,pid));
+const hasBudgetLocks=()=>Object.keys(s.lockedPaychecks).some(isPaycheckLocked);
+const lockedNotice=()=>notice('This paycheck is locked. Unlock it in Paychecks & bills before making changes.');
+function payOwner(k){
+ if(s.assign[k])return s.assign[k];
+ const due=String(k).split('@').pop(),p=dates();
+ for(let i=0;i<p.length-1;i++)if(iso(p[i])<=due&&due<iso(p[i+1]))return iso(p[i]);
+ return null;
+}
+function billAffectsLockedPaychecks(b){
+ if(!hasBudgetLocks())return false;
+ if(Object.entries(s.assign).some(([k,pid])=>k.startsWith(b.id+'@')&&isPaycheckLocked(pid)))return true;
+ const p=dates();
+ for(const pid of Object.keys(s.lockedPaychecks)){
+  if(!isPaycheckLocked(pid))continue;
+  const i=p.findIndex(d=>iso(d)===pid);
+  if(i<0||!p[i+1])return true; // Fail closed if a locked payday is outside the available schedule.
+  if(occurrences(p[i],plus(p[i+1],-1),[b]).length)return true;
+ }
+ return false;
+}
+let currentLockPids=[];
+function renderBudgetLock(pids,unpaidCount){
+ const bar=$('budgetLockBar'),status=$('budgetLockStatus'),description=$('budgetLockDescription'),button=$('budgetLockToggle');
+ currentLockPids=[...new Set(pids)];bar.hidden=!currentLockPids.length;
+ if(!currentLockPids.length)return;
+ const locked=currentLockPids.filter(isPaycheckLocked).length,total=currentLockPids.length;
+ const allLocked=locked===total;
+ bar.classList.toggle('is-locked',allLocked);
+ status.textContent=allLocked?'Pay cycle locked':locked?'Partially locked · '+locked+' of '+total:'Pay cycle is editable';
+ description.textContent=allLocked?'Bills, amounts and payments are protected.':locked?'Lock the remaining paycheck or unlock both.': 'Lock these paychecks when you finish paying your bills.';
+ button.textContent=allLocked?'Unlock pay cycle':'Lock pay cycle';
+ button.setAttribute('aria-label',(allLocked?'Unlock':'Lock')+' '+total+' displayed paycheck'+(total===1?'':'s'));
+ button.onclick=()=>{
+  if(allLocked){
+   if(!confirm('Unlock '+total+' paycheck'+(total===1?'':'s')+' and allow edits again?'))return;
+   currentLockPids.forEach(pid=>delete s.lockedPaychecks[pid]);
+  }else{
+   if(unpaidCount>0&&!confirm(unpaidCount+' unpaid bill'+(unpaidCount===1?' is':'s are')+' still in these paychecks. Lock anyway?'))return;
+   currentLockPids.forEach(pid=>s.lockedPaychecks[pid]=true);
+  }
+  moving=null;bulkSelected.clear();save();render();
+ };
+}
 const occurrenceAmount=x=>x.b.amountType==='variable'?(Object.prototype.hasOwnProperty.call(s.occurrenceAmounts,x.k)?s.occurrenceAmounts[x.k]:null):x.b.amount;
 function clearForm(){editing=null;for(let id of ['billname','amount','day','first'])$(id).value='';$('repeat').value='monthly';$('amountType').value='fixed';$('add').textContent='+ Add bill';$('cancel').hidden=true}
 function renderThreePaycheckDetector(){
@@ -627,7 +735,7 @@ function renderFinance(){
  const alert=document.createElement('div');alert.className=deficit.length?'finance-alert':'finance-ok';
  alert.textContent=deficit.length?deficit.length+' of these 2 paychecks may have bills exceeding income.':'No known shortfalls in these 2 paychecks.';
  status.append(alert);
- for(const f of forecast){const line=document.createElement('div');line.className='forecast-line',left=document.createElement('div'),title=document.createElement('strong'),details=document.createElement('small'),val=document.createElement('strong');title.textContent=fmt(f.p);details.textContent='Income '+money(f.income)+' · Bills '+money(f.known)+(f.unknown?' · '+f.unknown+' TBD':'');left.append(title,details);val.textContent=(f.left<0?'−':'')+money(Math.abs(f.left));if(f.left<0)val.className='forecast-negative';line.append(left,val);rows.append(line)}
+ for(const f of forecast){const line=document.createElement('div');line.className='forecast-line';const left=document.createElement('div'),title=document.createElement('strong'),details=document.createElement('small'),val=document.createElement('strong');title.textContent=fmt(f.p);details.textContent='Income '+money(f.income)+' · Bills '+money(f.known)+(f.unknown?' · '+f.unknown+' TBD':'');left.append(title,details);val.textContent=(f.left<0?'−':'')+money(Math.abs(f.left));if(f.left<0)val.className='forecast-negative';line.append(left,val);rows.append(line)}
  renderMonthlyReport();
 }
 function renderMonthlyReport(){
@@ -738,7 +846,7 @@ function renderBillManagement(){
  const amt=document.createElement('td');amt.dataset.label='Amount';amt.textContent=b.amountType==='variable'?'Variable':b.amount==null||b.amount===''?'TBD':money(b.amount);
  const repeat=document.createElement('td');repeat.dataset.label='Frequency';repeat.textContent=b.repeat;
  const catTd=document.createElement('td');catTd.dataset.label='Category';const badge=document.createElement('span');badge.className='bill-category-badge';badge.dataset.category=cat;badge.textContent=cat;catTd.append(badge);
- const actions=document.createElement('td');actions.className='bill-actions';const e=document.createElement('button');e.className='alt';e.type='button';e.textContent='Edit';e.onclick=()=>{editing=b.id;$('billname').value=b.name;$('amount').value=b.amount??'';$('day').value=b.day;$('repeat').value=b.repeat;$('amountType').value=b.amountType||'fixed';$('first').value=b.first||'';$('add').textContent='Save changes';$('cancel').hidden=false;$('addSection').open=true;$('addSection').scrollIntoView({behavior:'smooth',block:'start'})};const del=document.createElement('button');del.className='danger';del.type='button';del.textContent='Delete';del.onclick=()=>{if(!confirm('Delete '+b.name+'?'))return;s.bills=s.bills.filter(x=>x.id!==b.id);save();render()};actions.append(e,del);
+ const actions=document.createElement('td');actions.className='bill-actions';const e=document.createElement('button');e.className='alt';e.type='button';e.textContent='Edit';e.disabled=billAffectsLockedPaychecks(b);e.title=e.disabled?'This bill appears in a locked paycheck':'';e.onclick=()=>{if(billAffectsLockedPaychecks(b)){lockedNotice();return}editing=b.id;$('billname').value=b.name;$('amount').value=b.amount??'';$('day').value=b.day;$('repeat').value=b.repeat;$('amountType').value=b.amountType||'fixed';$('first').value=b.first||'';$('add').textContent='Save changes';$('cancel').hidden=false;$('addSection').open=true;$('addSection').scrollIntoView({behavior:'smooth',block:'start'})};const del=document.createElement('button');del.className='danger';del.type='button';del.textContent='Delete';del.disabled=billAffectsLockedPaychecks(b);del.title=del.disabled?'This bill appears in a locked paycheck':'';del.onclick=()=>{if(billAffectsLockedPaychecks(b)){lockedNotice();return}if(!confirm('Delete '+b.name+'?'))return;s.bills=s.bills.filter(x=>x.id!==b.id);save();render()};actions.append(e,del);
  tr.append(name,amt,repeat,catTd,actions);tbody.append(tr)
  }table.append(tbody);host.append(table);if(!bills.length){const empty=document.createElement('p');empty.className='finance-note';empty.textContent=s.bills.length?'No bills match your search.':'No bills added yet.';host.append(empty)}
  const pager=$('managePagination');pager.replaceChildren();
@@ -788,8 +896,11 @@ function render(){
 renderCycleOverview();
 renderThreePaycheckDetector();
 $('payday').value=s.payday;$('income').value=s.income;$('freq').value=s.freq;
+const setupProtected=hasBudgetLocks();
+for(const id of ['payday','income','freq'])$(id).disabled=setupProtected;
+$('lockedSettingsNote').hidden=!setupProtected;
 renderBillManagement();
-let board=$('board');board.replaceChildren();let pays=dates();if(!pays.length){let p=document.createElement('div');p.className='panel';p.textContent='Add bills now, then enter your payday to display the two paycheck columns.';board.append(p);renderFinance();return}
+let board=$('board');board.replaceChildren();let pays=dates();if(!pays.length){renderBudgetLock([],0);let p=document.createElement('div');p.className='panel';p.textContent='Add bills now, then enter your payday to display the two paycheck columns.';board.append(p);renderFinance();return}
 let today=new Date();today.setHours(12,0,0,0);
 let anchor=pays.findIndex((p,i)=>p<=today&&pays[i+1]>today);if(anchor<0)anchor=pays.findIndex(p=>p>=today);anchor=Math.max(0,anchor);
 let selectedIndices=selectedMonth?pays.map((p,i)=>monthKey(p)===selectedMonth?i:-1).filter(i=>i>=0):[];
@@ -798,6 +909,9 @@ let visibleCount=selectedIndices.length?selectedIndices.length:2;
 if(selectedPayday){let hit=pays.findIndex(p=>iso(p)===selectedPayday);if(hit>=0){first=hit;visibleCount=1}}
 let chosen=pays.slice(first,first+visibleCount+1);
 let all=occurrences(plus(chosen[0],-35),plus(chosen[chosen.length-1],35));
+const shownPids=chosen.slice(0,visibleCount).map(iso);
+const shownUnpaid=shownPids.reduce((n,pid,i)=>{const begin=chosen[i],end=chosen[i+1]||plus(begin,Number(s.freq)||14);return n+all.filter(x=>(s.assign[x.k]?s.assign[x.k]===pid:x.d>=begin&&x.d<end)&&!s.paid[x.k]).length},0);
+renderBudgetLock(shownPids,shownUnpaid);
 const title=$('paycheckBoardTitle');if(title)title.textContent=selectedMonth?'Paychecks · '+new Date(Number(selectedMonth.slice(0,4)),Number(selectedMonth.slice(5))-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'}):'Both paychecks';
 const back=$('backCurrent');if(back)back.hidden=(!selectedMonth&&!selectedPayday&&first===anchor);
 const indicator=$('cycleIndicator');
@@ -810,7 +924,9 @@ if(indicator){
 }
 for(let j=0;j<visibleCount;j++){let p=chosen[j],end=chosen[j+1]||plus(p,Number(s.freq)||14),pid=iso(p),items=all.filter(x=>s.assign[x.k]?s.assign[x.k]===pid:x.d>=p&&x.d<end);
 items.sort((a,b)=>{let oa=s.order[pid]||[];let ai=oa.indexOf(a.k),bi=oa.indexOf(b.k);return (ai<0?10000:ai)-(bi<0?10000:bi)||a.d-b.d});
-let card=document.createElement('section');card.className='panel';let h=document.createElement('h2');h.textContent=fmt(p);
+let locked=isPaycheckLocked(pid);
+let card=document.createElement('section');card.className='panel';card.classList.toggle('paycheck-locked',locked);let h=document.createElement('h2');h.textContent=fmt(p);
+if(locked){const pill=document.createElement('span');pill.className='budget-lock-pill';pill.textContent='Locked';h.append(pill)}
 let total=items.reduce((n,x)=>n+(Number(occurrenceAmount(x))||0),0);
 let bonus=Number(s.bonuses[pid]||0); // Per-paycheck only; no automatic quarterly recurrence
 let sum=document.createElement('div');sum.className='summary';
@@ -826,42 +942,49 @@ let bonusSave=document.createElement('button');bonusSave.type='button';bonusSave
 let bonusRemove=document.createElement('button');bonusRemove.type='button';bonusRemove.className='alt';bonusRemove.textContent='Remove';
 let bonusCancel=document.createElement('button');bonusCancel.type='button';bonusCancel.className='alt';bonusCancel.textContent='Cancel';
 bonusEditor.append(bonusLabel,bonusSave,bonusRemove,bonusCancel);
-bonusBtn.onclick=()=>{bonusEditor.hidden=!bonusEditor.hidden;if(!bonusEditor.hidden)bonusInput.focus()};
-bonusSave.onclick=()=>{const raw=bonusInput.value.trim();const amount=Number(raw);if(raw===''||!Number.isFinite(amount)||amount<0){bonusInput.setCustomValidity('Enter a valid amount of zero or more.');bonusInput.reportValidity();return;}bonusInput.setCustomValidity('');s.bonuses[pid]=amount;save();render();const message=document.createElement('div');message.className='extra-saved';message.setAttribute('role','status');message.textContent='✓ Saved '+money(amount)+' extra income for '+fmt(p);const matching=[...document.querySelectorAll('.panel')].find(el=>el.querySelector('h2')?.textContent==='Paycheck '+fmt(p));if(matching){matching.insertBefore(message,matching.querySelector('.pay-tools'));} };
+bonusBtn.disabled=locked;bonusBtn.onclick=()=>{if(isPaycheckLocked(pid)){lockedNotice();return}bonusEditor.hidden=!bonusEditor.hidden;if(!bonusEditor.hidden)bonusInput.focus()};
+bonusSave.onclick=()=>{if(isPaycheckLocked(pid)){lockedNotice();return}const raw=bonusInput.value.trim();const amount=Number(raw);if(raw===''||!Number.isFinite(amount)||amount<0){bonusInput.setCustomValidity('Enter a valid amount of zero or more.');bonusInput.reportValidity();return;}bonusInput.setCustomValidity('');s.bonuses[pid]=amount;save();render();const message=document.createElement('div');message.className='extra-saved';message.setAttribute('role','status');message.textContent='✓ Saved '+money(amount)+' extra income for '+fmt(p);const matching=[...document.querySelectorAll('.panel')].find(el=>el.querySelector('h2')?.textContent==='Paycheck '+fmt(p));if(matching){matching.insertBefore(message,matching.querySelector('.pay-tools'));} };
 bonusInput.oninput=()=>bonusInput.setCustomValidity('');
-bonusRemove.onclick=()=>{delete s.bonuses[pid];save();render()};
+bonusRemove.onclick=()=>{if(isPaycheckLocked(pid)){lockedNotice();return}delete s.bonuses[pid];save();render()};
 bonusCancel.onclick=()=>{bonusEditor.hidden=true};
 let selectAll=document.createElement('button');selectAll.className='alt';selectAll.textContent=items.length&&items.every(x=>bulkSelected.has(x.k))?'Deselect all':'Select all';
-selectAll.onclick=()=>{if(items.every(x=>bulkSelected.has(x.k)))items.forEach(x=>bulkSelected.delete(x.k));else items.forEach(x=>bulkSelected.add(x.k));render()};
-let selectedPaid=document.createElement('button');selectedPaid.className='alt';selectedPaid.textContent='Mark as Paid';selectedPaid.disabled=!items.some(x=>bulkSelected.has(x.k)&&!s.paid[x.k]);
-selectedPaid.onclick=()=>{let selected=items.filter(x=>bulkSelected.has(x.k));if(!selected.length)return;selected.forEach(x=>{s.paid[x.k]=true;bulkSelected.delete(x.k)});save();render()};
-let selectedUnpaid=document.createElement('button');selectedUnpaid.className='alt';selectedUnpaid.textContent='Mark as Unpaid';selectedUnpaid.disabled=!items.some(x=>bulkSelected.has(x.k)&&!!s.paid[x.k]);
-selectedUnpaid.onclick=()=>{let selected=items.filter(x=>bulkSelected.has(x.k)&&!!s.paid[x.k]);if(!selected.length)return;selected.forEach(x=>{s.paid[x.k]=false;bulkSelected.delete(x.k)});save();render()};
+selectAll.disabled=locked;selectAll.onclick=()=>{if(isPaycheckLocked(pid)){lockedNotice();return}if(items.every(x=>bulkSelected.has(x.k)))items.forEach(x=>bulkSelected.delete(x.k));else items.forEach(x=>bulkSelected.add(x.k));render()};
+let selectedPaid=document.createElement('button');selectedPaid.className='alt';selectedPaid.textContent='Mark as Paid';selectedPaid.disabled=locked||!items.some(x=>bulkSelected.has(x.k)&&!s.paid[x.k]);
+selectedPaid.onclick=()=>{if(isPaycheckLocked(pid)){lockedNotice();return}let selected=items.filter(x=>bulkSelected.has(x.k));if(!selected.length)return;selected.forEach(x=>{s.paid[x.k]=true;bulkSelected.delete(x.k)});save();render()};
+let selectedUnpaid=document.createElement('button');selectedUnpaid.className='alt';selectedUnpaid.textContent='Mark as Unpaid';selectedUnpaid.disabled=locked||!items.some(x=>bulkSelected.has(x.k)&&!!s.paid[x.k]);
+selectedUnpaid.onclick=()=>{if(isPaycheckLocked(pid)){lockedNotice();return}let selected=items.filter(x=>bulkSelected.has(x.k)&&!!s.paid[x.k]);if(!selected.length)return;selected.forEach(x=>{s.paid[x.k]=false;bulkSelected.delete(x.k)});save();render()};
 tools.append(bonusBtn,selectAll,selectedPaid,selectedUnpaid);card.append(tools,bonusEditor);
-let drop=document.createElement('div');drop.className='drop';drop.ondragover=e=>{e.preventDefault();drop.classList.add('target')};drop.ondragleave=()=>drop.classList.remove('target');drop.ondrop=e=>{e.preventDefault();drop.classList.remove('target');let k=e.dataTransfer.getData('text/plain');if(k)moveTo(k,pid,null)};
-if(moving){let banner=document.createElement('button');banner.textContent='Move selected tile here';banner.onclick=()=>moveTo(moving,pid,null);drop.append(banner)}
-items.forEach((x,index)=>{let t=document.createElement('div');t.className='tile'+(s.paid[x.k]?' paid':'');t.draggable=true;t.ondragstart=e=>{e.dataTransfer.setData('text/plain',x.k);t.classList.add('drag')};t.ondragend=()=>t.classList.remove('drag');t.ondragover=e=>e.preventDefault();t.ondrop=e=>{e.stopPropagation();e.preventDefault();let k=e.dataTransfer.getData('text/plain');if(k)moveTo(k,pid,index)};
-let select=document.createElement('input');select.type='checkbox';select.className='bulk-check';select.checked=bulkSelected.has(x.k);select.setAttribute('aria-label','Select '+x.b.name+' due '+fmt(x.d));select.onclick=e=>e.stopPropagation();select.onchange=()=>{if(select.checked)bulkSelected.add(x.k);else bulkSelected.delete(x.k);render()};
+let drop=document.createElement('div');drop.className='drop';drop.ondragover=e=>{if(isPaycheckLocked(pid))return;e.preventDefault();drop.classList.add('target')};drop.ondragleave=()=>drop.classList.remove('target');drop.ondrop=e=>{e.preventDefault();drop.classList.remove('target');if(isPaycheckLocked(pid)){lockedNotice();return}let k=e.dataTransfer.getData('text/plain');if(k)moveTo(k,pid,null)};
+if(moving&&!locked){let banner=document.createElement('button');banner.textContent='Move selected tile here';banner.onclick=()=>moveTo(moving,pid,null);drop.append(banner)}
+items.forEach((x,index)=>{let t=document.createElement('div');t.className='tile'+(s.paid[x.k]?' paid':'');t.draggable=!locked;t.ondragstart=e=>{if(isPaycheckLocked(pid)){e.preventDefault();return}e.dataTransfer.setData('text/plain',x.k);t.classList.add('drag')};t.ondragend=()=>t.classList.remove('drag');t.ondragover=e=>e.preventDefault();t.ondrop=e=>{e.stopPropagation();e.preventDefault();if(isPaycheckLocked(pid)){lockedNotice();return}let k=e.dataTransfer.getData('text/plain');if(k)moveTo(k,pid,index)};
+let select=document.createElement('input');select.type='checkbox';select.className='bulk-check';select.checked=bulkSelected.has(x.k)&&!locked;select.disabled=locked;select.setAttribute('aria-label','Select '+x.b.name+' due '+fmt(x.d));select.onclick=e=>e.stopPropagation();select.onchange=()=>{if(isPaycheckLocked(pid)){lockedNotice();return}if(select.checked)bulkSelected.add(x.k);else bulkSelected.delete(x.k);render()};
 let header=document.createElement('div');header.className='tileheader';
 header.setAttribute('role','button');header.tabIndex=0;
 header.setAttribute('aria-expanded',String(expandedTile===x.k));
 header.setAttribute('aria-label','Toggle controls for '+x.b.name);
 header.onclick=e=>{if(e.target===select)return;expandedTile=expandedTile===x.k?null:x.k;render()};
 header.onkeydown=e=>{if(e.target===select)return;if(e.key==='Enter'||e.key===' '){e.preventDefault();header.click()}};let name=document.createElement('strong');name.textContent=x.b.name;let amt=document.createElement('b');amt.textContent=money(occurrenceAmount(x));let chevron=document.createElement('span');chevron.className='tile-chevron';chevron.textContent='⌄';header.append(select,name,amt,chevron);let sub=document.createElement('small');sub.className='tile-due';sub.textContent='Due '+fmt(x.d);let actions=document.createElement('div');actions.className='tileactions';
-if(x.b.amountType==='variable'){let editAmount=document.createElement('button');editAmount.className='alt';editAmount.textContent=occurrenceAmount(x)===null?'＋ Enter amount':'✎ Edit amount';editAmount.onclick=()=>{let current=occurrenceAmount(x);let entered=prompt('Amount for '+x.b.name+' due '+fmt(x.d)+' (leave blank to clear):',current===null?'':String(current));if(entered===null)return;let val=entered.trim().replace(/^\$/,'').replace(/,/g,'');if(val!==''&&(!Number.isFinite(Number(val))||Number(val)<0)){alert('Enter a valid nonnegative amount.');return}s.occurrenceAmounts[x.k]=val===''?null:Number(val);save();render()};actions.append(editAmount)}
-let paid=document.createElement('button');paid.className='alt';paid.textContent=s.paid[x.k]?'Mark unpaid':'Mark paid';paid.onclick=()=>{s.paid[x.k]=!s.paid[x.k];save();render()};
+if(x.b.amountType==='variable'){let editAmount=document.createElement('button');editAmount.className='alt';editAmount.textContent=occurrenceAmount(x)===null?'＋ Enter amount':'✎ Edit amount';editAmount.disabled=locked;editAmount.onclick=()=>{if(isPaycheckLocked(pid)){lockedNotice();return}let current=occurrenceAmount(x);let entered=prompt('Amount for '+x.b.name+' due '+fmt(x.d)+' (leave blank to clear):',current===null?'':String(current));if(entered===null)return;let val=entered.trim().replace(/^\$/,'').replace(/,/g,'');if(val!==''&&(!Number.isFinite(Number(val))||Number(val)<0)){alert('Enter a valid nonnegative amount.');return}s.occurrenceAmounts[x.k]=val===''?null:Number(val);save();render()};actions.append(editAmount)}
+let paid=document.createElement('button');paid.className='alt';paid.textContent=s.paid[x.k]?'Mark unpaid':'Mark paid';paid.disabled=locked;paid.onclick=()=>{if(isPaycheckLocked(pid)){lockedNotice();return}s.paid[x.k]=!s.paid[x.k];save();render()};
 
-let up=document.createElement('button');up.className='alt';up.textContent='↑';up.onclick=()=>{if(index===0){moveTo(x.k,iso(chosen[1-j]),j===0?null:0);selectTab(1-j)}else reorder(pid,items,x.k,-1)};let down=document.createElement('button');down.className='alt';down.textContent='↓';down.onclick=()=>{if(index===items.length-1){moveTo(x.k,iso(chosen[1-j]),j===0?0:null);selectTab(1-j)}else reorder(pid,items,x.k,1)};
+let up=document.createElement('button');up.className='alt';up.textContent='↑';up.disabled=locked;up.onclick=()=>{if(isPaycheckLocked(pid)){lockedNotice();return}if(index===0){moveTo(x.k,iso(chosen[1-j]),j===0?null:0);selectTab(1-j)}else reorder(pid,items,x.k,-1)};let down=document.createElement('button');down.className='alt';down.textContent='↓';down.disabled=locked;down.onclick=()=>{if(isPaycheckLocked(pid)){lockedNotice();return}if(index===items.length-1){moveTo(x.k,iso(chosen[1-j]),j===0?0:null);selectTab(1-j)}else reorder(pid,items,x.k,1)};
 actions.append(paid,up,down);t.classList.toggle('tile-expanded',expandedTile===x.k);t.append(header,sub,actions);drop.append(t)});card.append(drop);card.classList.toggle('mobile-current',j===mobileTab);board.append(card)}
 renderFinance();
 }
 function selectTab(i){mobileTab=i;for(let j=0;j<2;j++){$('tab'+j).classList.toggle('active',j===i);$('tab'+j).classList.toggle('alt',j!==i)}document.querySelectorAll('#board>.panel').forEach((c,j)=>c.classList.toggle('mobile-current',j===i))}
 $('tab0').onclick=()=>selectTab(0);$('tab1').onclick=()=>selectTab(1);
-function reorder(pid,items,k,direction){let keys=items.map(x=>x.k),i=keys.indexOf(k),j=i+direction;if(j<0||j>=keys.length)return;[keys[i],keys[j]]=[keys[j],keys[i]];s.order[pid]=keys;save();render()}
-function moveTo(k,pid,index){s.assign[k]=pid;let arr=s.order[pid]||[];arr=arr.filter(x=>x!==k);if(index===null)arr.push(k);else arr.splice(index,0,k);s.order[pid]=arr;moving=null;save();render()}
-$('add').onclick=()=>{try{let name=$('billname').value.trim();if(!name){notice('Please enter a bill name first.');$('billname').focus();return}let day=Number($('day').value)||new Date().getDate(),first=$('first').value,repeat=$('repeat').value;if(day<1||day>31){notice('Due day must be between 1 and 31.');return}if(repeat!=='monthly'&&!first)first=iso(new Date());let b={id:editing||'b'+Date.now()+'_'+Math.floor(Math.random()*1000),name,amount:$('amount').value===''?null:Number($('amount').value),day,repeat,first,amountType:$('amountType').value};if(editing)s.bills=s.bills.map(x=>x.id===editing?b:x);else s.bills.push(b);save();clearForm();render();notice('✓ Bill saved: '+name+(s.payday?' — see your paycheck tiles below.':' — enter a payday to display its tile.'))}catch(e){notice('Could not add bill: '+e.message)}};
+function reorder(pid,items,k,direction){if(isPaycheckLocked(pid)){lockedNotice();return}let keys=items.map(x=>x.k),i=keys.indexOf(k),j=i+direction;if(j<0||j>=keys.length)return;[keys[i],keys[j]]=[keys[j],keys[i]];s.order[pid]=keys;save();render()}
+function moveTo(k,pid,index){if(isPaycheckLocked(pid)||isPaycheckLocked(payOwner(k))){lockedNotice();return}s.assign[k]=pid;let arr=s.order[pid]||[];arr=arr.filter(x=>x!==k);if(index===null)arr.push(k);else arr.splice(index,0,k);s.order[pid]=arr;moving=null;save();render()}
+$('add').onclick=()=>{try{let name=$('billname').value.trim();if(!name){notice('Please enter a bill name first.');$('billname').focus();return}let day=Number($('day').value)||new Date().getDate(),first=$('first').value,repeat=$('repeat').value;if(day<1||day>31){notice('Due day must be between 1 and 31.');return}if(repeat!=='monthly'&&!first)first=iso(new Date());let b={id:editing||'b'+Date.now()+'_'+Math.floor(Math.random()*1000),name,amount:$('amount').value===''?null:Number($('amount').value),day,repeat,first,amountType:$('amountType').value};
+if(hasBudgetLocks()){
+ const original=editing?s.bills.find(x=>x.id===editing):null;
+ if((original&&billAffectsLockedPaychecks(original))||billAffectsLockedPaychecks(b)){
+  notice('This change affects a locked paycheck. Unlock the affected cycle, or set the first due date after the locked cycle.');return;
+ }
+}
+if(editing)s.bills=s.bills.map(x=>x.id===editing?b:x);else s.bills.push(b);save();clearForm();render();notice('✓ Bill saved: '+name+(s.payday?' — see your paycheck tiles below.':' — enter a payday to display its tile.'))}catch(e){notice('Could not add bill: '+e.message)}};
 $('cancel').onclick=clearForm;
-for(let id of ['payday','income','freq'])$(id).onchange=()=>{s.payday=$('payday').value;s.income=$('income').value;s.freq=$('freq').value;offset=0;selectedMonth=null;selectedPayday=null;save();render()};
+for(let id of ['payday','income','freq'])$(id).onchange=()=>{if(hasBudgetLocks()){notice('Unlock all locked paychecks before changing your payday, pay frequency or base income.');render();return}s.payday=$('payday').value;s.income=$('income').value;s.freq=$('freq').value;offset=0;selectedMonth=null;selectedPayday=null;save();render()};
 $('backCurrent').onclick=()=>{selectedMonth=null;selectedPayday=null;offset=0;render()};$('earlier').onclick=()=>{selectedMonth=null;selectedPayday=null;offset-=2;render()};$('later').onclick=()=>{selectedMonth=null;selectedPayday=null;offset+=2;render()};
 
 function parseCSV(input){
@@ -926,13 +1049,17 @@ $('import').onclick=async()=>{
   incoming=incoming.map(normalizeBill);
   const mode=$('importmode').value;
   if(mode==='replace'){
+   if(hasBudgetLocks())throw Error('Unlock your protected paychecks before replacing the budget.');
    if(!confirm('Replace your current budget with '+incoming.length+' imported bills? Export a backup first if needed.'))return;
    if(full){
-    s={payday:validDate(full.payday||'')?full.payday:'',income:full.income??'',freq:['7','14','month'].includes(String(full.freq))?String(full.freq):'14',bills:incoming,assign:full.assign&&typeof full.assign==='object'?full.assign:{},paid:full.paid&&typeof full.paid==='object'?full.paid:{},order:full.order&&typeof full.order==='object'?full.order:{},occurrenceAmounts:full.occurrenceAmounts&&typeof full.occurrenceAmounts==='object'?full.occurrenceAmounts:{},bonuses:full.bonuses&&typeof full.bonuses==='object'?full.bonuses:{}};
+    s={payday:validDate(full.payday||'')?full.payday:'',income:full.income??'',freq:['7','14','month'].includes(String(full.freq))?String(full.freq):'14',bills:incoming,assign:full.assign&&typeof full.assign==='object'?full.assign:{},paid:full.paid&&typeof full.paid==='object'?full.paid:{},order:full.order&&typeof full.order==='object'?full.order:{},occurrenceAmounts:full.occurrenceAmounts&&typeof full.occurrenceAmounts==='object'?full.occurrenceAmounts:{},bonuses:full.bonuses&&typeof full.bonuses==='object'?full.bonuses:{},lockedPaychecks:full.lockedPaychecks&&typeof full.lockedPaychecks==='object'&&!Array.isArray(full.lockedPaychecks)?full.lockedPaychecks:{}};
    }else{s={...s,bills:incoming,assign:{},paid:{},order:{},occurrenceAmounts:{}}}
    notice('✓ Replaced budget with '+incoming.length+' bills.');
   }else{
    const identities=new Set(s.bills.map(billIdentity)),ids=new Set(s.bills.map(b=>b.id));let added=0;
+   const toCheck=incoming.filter(b=>!identities.has(billIdentity(b)));
+   const affected=toCheck.find(billAffectsLockedPaychecks);
+   if(affected)throw Error('Imported bill '+affected.name+' would affect a locked paycheck. Unlock it or set a later first due date.');
    for(const b of incoming){
     const identity=billIdentity(b);if(identities.has(identity))continue;
     if(ids.has(b.id))b.id=newId();
@@ -944,7 +1071,7 @@ $('import').onclick=async()=>{
  }catch(e){notice('Import failed: '+e.message)}
 };
 
-$('reset').onclick=()=>{if(confirm('Delete all your saved bills?')){s={payday:'',income:'',freq:'14',bills:[],assign:{},paid:{},order:{},occurrenceAmounts:{},bonuses:{}};bulkSelected.clear();save();render()}};
+$('reset').onclick=()=>{if(hasBudgetLocks()){notice('Unlock all protected paychecks before clearing your budget.');return}if(confirm('Delete all your saved bills?')){s={payday:'',income:'',freq:'14',bills:[],assign:{},paid:{},order:{},occurrenceAmounts:{},bonuses:{},lockedPaychecks:{}};bulkSelected.clear();save();render()}};
 $('export').onclick=()=>{let a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(s,null,2)],{type:'application/json'}));a.href=url;a.download='paycheck-budget-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000)};
 
 function installHorizontalCalendars(){
